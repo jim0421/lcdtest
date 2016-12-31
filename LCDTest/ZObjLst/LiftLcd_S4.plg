@@ -1,0 +1,13 @@
+Build target 'LiftLcd_S4'
+linking...
+Program Size: Code=31196 RO-data=4376 RW-data=2100 ZI-data=392860  
+FromELF: creating hex file...
+User command #1: C:\Users\艺雯\Desktop\LCDTest\LCDTest\PRJ_RTX\tobin.bat
+C:\Users\艺雯\Desktop\LCDTest\LCDTest\PRJ_RTX>"C:\Keil\ARM\ARMCC\bin\fromelf" --bin --output=..\ZBinFile\LiftLcd_Temp.t ..\ZObjLst\LiftLcd_S4.axf 
+C:\Users\艺雯\Desktop\LCDTest\LCDTest\PRJ_RTX>copy /b  ..\ZBinFile\LiftLcd_Temp.t+..\ZBinFile\padding.raw ..\ZBinFile\LiftLcd_Test.bin 
+..\ZBinFile\LiftLcd_Temp.t
+..\ZBinFile\padding.raw
+已复制         1 个文件。
+C:\Users\艺雯\Desktop\LCDTest\LCDTest\PRJ_RTX>pause; 
+请按任意键继续. . . 
+"..\ZObjLst\LiftLcd_S4.axf" - 0 Error(s), 0 Warning(s).

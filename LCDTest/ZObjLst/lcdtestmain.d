@@ -1,0 +1,12 @@
+..\ZObjLst\lcdtestmain.o: ..\LcdPrg\LcdTestMain.cpp
+..\ZObjLst\lcdtestmain.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+..\ZObjLst\lcdtestmain.o: ..\LcdPrg\words.h
+..\ZObjLst\lcdtestmain.o: ..\LcdPrg\utility.h
+..\ZObjLst\lcdtestmain.o: ..\LcdPrg\components.h
+..\ZObjLst\lcdtestmain.o: ..\LcdPrg\graphics.h
+..\ZObjLst\lcdtestmain.o: C:\Keil\ARM\Inc\Philips\lpc23xx.h
+..\ZObjLst\lcdtestmain.o: ..\INC\bsp.h
+..\ZObjLst\lcdtestmain.o: ..\INC\typedef.h
+..\ZObjLst\lcdtestmain.o: ..\DRV\lcd050i64bio.h
+..\ZObjLst\lcdtestmain.o: ..\DRV\ioport.h
+..\ZObjLst\lcdtestmain.o: ..\INC\sys.h

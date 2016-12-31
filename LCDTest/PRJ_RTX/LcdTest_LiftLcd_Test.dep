@@ -1,0 +1,200 @@
+Dependencies for Project 'LcdTest', Target 'LiftLcd_Test': (DO NOT MODIFY !)
+F (..\OSL\LPC2400_RTX.s)(0x4FCB36F5)(--cpu ARM7TDMI --pd "__RTX SETA 1" -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips --list "..\ZObjLst\LPC2400_RTX.lst" --xref -o "..\ZObjLst\LPC2400_RTX.o" --depend "..\ZObjLst\LPC2400_RTX.d")
+F (..\OSL\syscall.c)(0x54F9836E)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\syscall.o" --omf_browse "..\ZObjLst\syscall.crf" --depend "..\ZObjLst\syscall.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+F (..\OSL\tick.c)(0x4DCD3886)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\tick.o" --omf_browse "..\ZObjLst\tick.crf" --depend "..\ZObjLst\tick.d")
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.h)(0x4F58377C)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\INC\irq.h)(0x4ECF3B0A)
+F (..\OSL\Retarget.c)(0x4ECF5476)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\retarget.o" --omf_browse "..\ZObjLst\retarget.crf" --depend "..\ZObjLst\retarget.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (C:\Keil\ARM\ARMCC\bin\..\include\rt_misc.h)(0x4EB0D280)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+F (..\OSL\command.c)(0x4DE8E03A)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\command.o" --omf_browse "..\ZObjLst\command.crf" --depend "..\ZObjLst\command.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (C:\Keil\ARM\ARMCC\bin\..\include\ctype.h)(0x4EB0D280)
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (C:\Keil\ARM\ARMCC\bin\..\include\string.h)(0x4EB0D286)
+I (..\INC\drv.h)(0x5419AA40)
+F (..\OSL\irq.c)(0x4C7F3B66)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\irq.o" --omf_browse "..\ZObjLst\irq.crf" --depend "..\ZObjLst\irq.d")
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.h)(0x4F58377C)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\irq.h)(0x4ECF3B0A)
+F (..\OSL\SWI_table.s)(0x4C7F52F6)(--cpu ARM7TDMI --pd "__RTX SETA 1" -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips --list "..\ZObjLst\SWI_table.lst" --xref -o "..\ZObjLst\SWI_table.o" --depend "..\ZObjLst\SWI_table.d")
+F (..\OSL\RTX2_Config.c)(0x5419A92E)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\rtx2_config.o" --omf_browse "..\ZObjLst\rtx2_config.crf" --depend "..\ZObjLst\rtx2_config.d")
+I (C:\Keil\ARM\RV31\INC\RTL.h)(0x504D40FC)
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.H)(0x4F58377C)
+I (C:\Keil\ARM\RV31\INC\RTX_lib.c)(0x50502278)
+F (..\OSL\osenv.c)(0x4F7D9B44)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\osenv.o" --omf_browse "..\ZObjLst\osenv.crf" --depend "..\ZObjLst\osenv.d")
+I (C:\Keil\ARM\RV31\INC\rtl.h)(0x504D40FC)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h)(0x4EB0D27C)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\sys.h)(0x4F0D7BEE)
+F (..\OSL\debug_print.cpp)(0x50151FBC)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\debug_print.o" --omf_browse "..\ZObjLst\debug_print.crf" --depend "..\ZObjLst\debug_print.d")
+I (C:\Keil\ARM\RV31\INC\rtl.h)(0x504D40FC)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h)(0x4EB0D27C)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (C:\Keil\ARM\ARMCC\bin\..\include\string.h)(0x4EB0D286)
+F (..\DRV\device_manage_RTX.c)(0x5419AA9C)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\device_manage_rtx.o" --omf_browse "..\ZObjLst\device_manage_rtx.crf" --depend "..\ZObjLst\device_manage_rtx.d")
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\DRV\time1.h)(0x4C761274)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\DRV\LCD050I64BIO.h)(0x50AE3E16)
+I (..\INC\drv.h)(0x5419AA40)
+F (..\DRV\watchdog.c)(0x4DCBE6DE)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\watchdog.o" --omf_browse "..\ZObjLst\watchdog.crf" --depend "..\ZObjLst\watchdog.d")
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.H)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+F (..\DRV\timer1.c)(0x5419AA4B)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\timer1.o" --omf_browse "..\ZObjLst\timer1.crf" --depend "..\ZObjLst\timer1.d")
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.h)(0x4F58377C)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\irq.h)(0x4ECF3B0A)
+I (..\DRV\time1.h)(0x4C761274)
+I (..\INC\drv.h)(0x5419AA40)
+F (..\DRV\ioport.c)(0x4F7F0436)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\ioport.o" --omf_browse "..\ZObjLst\ioport.crf" --depend "..\ZObjLst\ioport.d")
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+F (..\DRV\lpc22xxuartBase.cpp)(0x5419A1DA)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lpc22xxuartbase.o" --omf_browse "..\ZObjLst\lpc22xxuartbase.crf" --depend "..\ZObjLst\lpc22xxuartbase.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\DRV\lpc22xxuartbase.h)(0x4F3CF2A8)
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\INC\bspdef.h)(0x4F37B810)
+I (..\INC\irq.h)(0x4ECF3B0A)
+F (..\DRV\LCD050I64BIO.c)(0x50AE3A04)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lcd050i64bio.o" --omf_browse "..\ZObjLst\lcd050i64bio.crf" --depend "..\ZObjLst\lcd050i64bio.d")
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\DRV\lcd050i64bio.h)(0x50AE3E16)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\INC\sys.h)(0x4F0D7BEE)
+F (..\APPS\sys_init.c)(0x54179D9A)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\sys_init.o" --omf_browse "..\ZObjLst\sys_init.crf" --depend "..\ZObjLst\sys_init.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\INC\drv.h)(0x5419AA40)
+I (..\DRV\time1.h)(0x4C761274)
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.h)(0x4F58377C)
+F (..\APPS\tty_control.c)(0x5419AA91)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\tty_control.o" --omf_browse "..\ZObjLst\tty_control.crf" --depend "..\ZObjLst\tty_control.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\math.h)(0x4EB0D288)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\DRV\time1.h)(0x4C761274)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\INC\drv2.h)(0x50AF2C05)
+I (..\INC\..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\DRV2\lcd_disp.h)(0x5419A7C1)
+I (..\INC\drv.h)(0x5419AA40)
+I (C:\Keil\ARM\RV31\INC\rtl.h)(0x504D40FC)
+F (..\APPS\vt100.c)(0x49E1912A)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\vt100.o" --omf_browse "..\ZObjLst\vt100.crf" --depend "..\ZObjLst\vt100.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+F (..\APPS\brake_main.cpp)(0x575ED7B2)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\brake_main.o" --omf_browse "..\ZObjLst\brake_main.crf" --depend "..\ZObjLst\brake_main.d")
+I (C:\Keil\ARM\RV31\INC\RTL.h)(0x504D40FC)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (C:\Keil\ARM\Inc\Philips\LPC23xx.H)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\INC\drv2.h)(0x50AF2C05)
+I (..\INC\..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\DRV2\lcd_disp.h)(0x5419A7C1)
+I (..\DRV\time1.h)(0x4C761274)
+F (..\DRV2\drv2.c)(0x4DCFBDD0)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\drv2.o" --omf_browse "..\ZObjLst\drv2.crf" --depend "..\ZObjLst\drv2.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\drv2.h)(0x50AF2C05)
+I (..\INC\..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\DRV2\lcd_disp.h)(0x5419A7C1)
+F (..\DRV2\GB_Table.c)(0x4F7A9170)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\gb_table.o" --omf_browse "..\ZObjLst\gb_table.crf" --depend "..\ZObjLst\gb_table.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\drv2.h)(0x50AF2C05)
+I (..\INC\..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\DRV2\lcd_disp.h)(0x5419A7C1)
+F (..\DRV2\LCD_ASCII.c)(0x4E3D1922)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lcd_ascii.o" --omf_browse "..\ZObjLst\lcd_ascii.crf" --depend "..\ZObjLst\lcd_ascii.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+F (..\DRV2\LCD050I64.c)(0x541AC8A3)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lcd050i64.o" --omf_browse "..\ZObjLst\lcd050i64.crf" --depend "..\ZObjLst\lcd050i64.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\DRV\LCD050I64BIO.h)(0x50AE3E16)
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\INC\sys.h)(0x4F0D7BEE)
+I (..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\drv2\lcd_disp.h)(0x5419A7C1)
+I (..\DRV\time1.h)(0x4C761274)
+F (..\DRV2\LCD_Dis.c)(0x5419A99C)(-c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lcd_dis.o" --omf_browse "..\ZObjLst\lcd_dis.crf" --depend "..\ZObjLst\lcd_dis.d")
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\INC\drv2.h)(0x50AF2C05)
+I (..\INC\..\DRV2\LCD050I64.h)(0x50AE10E7)
+I (..\INC\DRV2\lcd_disp.h)(0x5419A7C1)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+F (..\LcdPrg\Components.cpp)(0x563DEDD7)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\components.o" --omf_browse "..\ZObjLst\components.crf" --depend "..\ZObjLst\components.d")
+I (..\LcdPrg\components.h)(0x563DEDCA)
+I (..\LcdPrg\graphics.h)(0x546B108C)
+I (..\LcdPrg\utility.h)(0x563DEDA7)
+F (..\LcdPrg\LcdTestMain.cpp)(0x579B3393)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\lcdtestmain.o" --omf_browse "..\ZObjLst\lcdtestmain.crf" --depend "..\ZObjLst\lcdtestmain.d")
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdio.h)(0x4EB0D286)
+I (..\LcdPrg\words.h)(0x54689EFF)
+I (..\LcdPrg\utility.h)(0x563DEDA7)
+I (..\LcdPrg\components.h)(0x563DEDCA)
+I (..\LcdPrg\graphics.h)(0x546B108C)
+I (C:\Keil\ARM\Inc\Philips\lpc23xx.h)(0x4F58377C)
+I (..\INC\bsp.h)(0x4F7D9BC4)
+I (..\INC\typedef.h)(0x4ED1A960)
+I (..\DRV\lcd050i64bio.h)(0x50AE3E16)
+I (..\DRV\ioport.h)(0x4F23F9F6)
+I (..\INC\sys.h)(0x4F0D7BEE)
+F (..\LcdPrg\MyComponents.cpp)(0x54847371)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\mycomponents.o" --omf_browse "..\ZObjLst\mycomponents.crf" --depend "..\ZObjLst\mycomponents.d")
+I (..\LcdPrg\components.h)(0x563DEDCA)
+I (..\LcdPrg\words.h)(0x54689EFF)
+I (..\LcdPrg\utility.h)(0x563DEDA7)
+F (..\LcdPrg\Utility.cpp)(0x546B10EF)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\utility.o" --omf_browse "..\ZObjLst\utility.crf" --depend "..\ZObjLst\utility.d")
+I (..\LcdPrg\utility.h)(0x563DEDA7)
+F (..\LcdPrg\Words.cpp)(0x549E6593)(--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\Philips -o "..\ZObjLst\words.o" --omf_browse "..\ZObjLst\words.crf" --depend "..\ZObjLst\words.d")
+I (..\LcdPrg\words.h)(0x54689EFF)
+I (..\LcdPrg\utility.h)(0x563DEDA7)
+I (..\LcdPrg\graphics.h)(0x546B108C)
+F (..\LcdPrg\components.h)(0x563DEDCA)()
+F (..\LcdPrg\graphics.h)(0x546B108C)()
+F (..\LcdPrg\resource.h)(0x53789E68)()
+F (..\LcdPrg\utility.h)(0x563DEDA7)()
+F (..\LcdPrg\words.h)(0x54689EFF)()

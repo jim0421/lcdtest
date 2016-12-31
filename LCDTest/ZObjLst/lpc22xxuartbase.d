@@ -1,0 +1,9 @@
+..\ZObjLst\lpc22xxuartbase.o: ..\DRV\lpc22xxuartBase.cpp
+..\ZObjLst\lpc22xxuartbase.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+..\ZObjLst\lpc22xxuartbase.o: ..\DRV\lpc22xxuartbase.h
+..\ZObjLst\lpc22xxuartbase.o: C:\Keil\ARM\Inc\Philips\lpc23xx.h
+..\ZObjLst\lpc22xxuartbase.o: ..\INC\bsp.h
+..\ZObjLst\lpc22xxuartbase.o: ..\INC\typedef.h
+..\ZObjLst\lpc22xxuartbase.o: ..\INC\sys.h
+..\ZObjLst\lpc22xxuartbase.o: ..\INC\bspdef.h
+..\ZObjLst\lpc22xxuartbase.o: ..\INC\irq.h

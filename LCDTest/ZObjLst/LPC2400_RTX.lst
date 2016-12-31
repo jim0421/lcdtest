@@ -1,0 +1,4834 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;/******************************************************
+                       ***********************/
+    2 00000000         ;/* LPC2400.S: Startup file for Philips LPC2400 device s
+                       eries                 */
+    3 00000000         ;/******************************************************
+                       ***********************/
+    4 00000000         ;/* <<< Use Configuration Wizard in Context Menu >>>    
+                                             */
+    5 00000000         ;/******************************************************
+                       ***********************/
+    6 00000000         ;/* This file is part of the uVision/ARM development too
+                       ls.                   */
+    7 00000000         ;/* Copyright (c) 2007-2008 Keil - An ARM Company. All r
+                       ights reserved.       */
+    8 00000000         ;/* This software may only be used under the terms of a 
+                       valid, current,       */
+    9 00000000         ;/* end user licence from KEIL for a compatible version 
+                       of KEIL software      */
+   10 00000000         ;/* development tools. Nothing else gives you the right 
+                       to use this software. */
+   11 00000000         ;/******************************************************
+                       ***********************/
+   12 00000000         
+   13 00000000         ;/*
+   14 00000000         ; *  The LPC2400.S code is executed after CPU Reset. Thi
+                       s file may be 
+   15 00000000         ; *  translated with the following SET symbols. In uVisi
+                       on these SET 
+   16 00000000         ; *  symbols are entered under Options - ASM - Define.
+   17 00000000         ; *
+   18 00000000         ; *  NO_CLOCK_SETUP: when set the startup code will not 
+                       initialize Clock 
+   19 00000000         ; *  (used mostly when clock is already initialized from
+                        script .ini 
+   20 00000000         ; *  file).
+   21 00000000         ; *
+   22 00000000         ; *  NO_EMC_SETUP: when set the startup code will not in
+                       itialize 
+   23 00000000         ; *  External Bus Controller.
+   24 00000000         ; *
+   25 00000000         ; *  RAM_INTVEC: when set the startup code copies except
+                       ion vectors 
+   26 00000000         ; *  from on-chip Flash to on-chip RAM.
+   27 00000000         ; *
+   28 00000000         ; *  REMAP: when set the startup code initializes the re
+                       gister MEMMAP 
+   29 00000000         ; *  which overwrites the settings of the CPU configurat
+                       ion pins. The 
+   30 00000000         ; *  startup and interrupt vectors are remapped from:
+   31 00000000         ; *     0x00000000  default setting (not remapped)
+   32 00000000         ; *     0x40000000  when RAM_MODE is used
+   33 00000000         ; *     0x80000000  when EXTMEM_MODE is used
+   34 00000000         ; *
+   35 00000000         ; *  EXTMEM_MODE: when set the device is configured for 
+                       code execution
+   36 00000000         ; *  from external memory starting at address 0x80000000
+                       .
+   37 00000000         ; *
+   38 00000000         ; *  RAM_MODE: when set the device is configured for cod
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                       e execution
+   39 00000000         ; *  from on-chip RAM starting at address 0x40000000. 
+   40 00000000         ; */
+   41 00000000         
+   42 00000000         
+   43 00000000         ; Standard definitions of Mode bits and Interrupt (I & F
+                       ) flags in PSRs
+   44 00000000         
+   45 00000000 00000010 
+                       Mode_USR
+                               EQU              0x10
+   46 00000000 00000011 
+                       Mode_FIQ
+                               EQU              0x11
+   47 00000000 00000012 
+                       Mode_IRQ
+                               EQU              0x12
+   48 00000000 00000013 
+                       Mode_SVC
+                               EQU              0x13
+   49 00000000 00000017 
+                       Mode_ABT
+                               EQU              0x17
+   50 00000000 0000001B 
+                       Mode_UND
+                               EQU              0x1B
+   51 00000000 0000001F 
+                       Mode_SYS
+                               EQU              0x1F
+   52 00000000         
+   53 00000000 00000080 
+                       I_Bit   EQU              0x80        ; when I bit is set
+                                                            , IRQ is disabled
+   54 00000000 00000040 
+                       F_Bit   EQU              0x40        ; when F bit is set
+                                                            , FIQ is disabled
+   55 00000000         
+   56 00000000         
+   57 00000000         ;----------------------- Memory Definitions ------------
+                       ------------------------
+   58 00000000         
+   59 00000000         ; Internal Memory Base Addresses
+   60 00000000 00000000 
+                       FLASH_BASE
+                               EQU              0x00000000
+   61 00000000 40000000 
+                       RAM_BASE
+                               EQU              0x40000000
+   62 00000000 80000000 
+                       EXTMEM_BASE
+                               EQU              0x80000000
+   63 00000000         
+   64 00000000         ; External Memory Base Addresses
+   65 00000000 80000000 
+                       STA_MEM0_BASE
+                               EQU              0x80000000
+   66 00000000 81000000 
+                       STA_MEM1_BASE
+                               EQU              0x81000000
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   67 00000000 82000000 
+                       STA_MEM2_BASE
+                               EQU              0x82000000
+   68 00000000 83000000 
+                       STA_MEM3_BASE
+                               EQU              0x83000000
+   69 00000000 A0000000 
+                       DYN_MEM0_BASE
+                               EQU              0xA0000000
+   70 00000000 B0000000 
+                       DYN_MEM1_BASE
+                               EQU              0xB0000000
+   71 00000000 C0000000 
+                       DYN_MEM2_BASE
+                               EQU              0xC0000000
+   72 00000000 D0000000 
+                       DYN_MEM3_BASE
+                               EQU              0xD0000000
+   73 00000000         
+   74 00000000         
+   75 00000000         ;----------------------- Stack and Heap Definitions ----
+                       ------------------------
+   76 00000000         
+   77 00000000         ;// <h> Stack Configuration (Stack Sizes in Bytes)
+   78 00000000         ;//   <o0> Undefined Mode      <0x0-0xFFFFFFFF:8>
+   79 00000000         ;//   <o1> Supervisor Mode     <0x0-0xFFFFFFFF:8>
+   80 00000000         ;//   <o2> Abort Mode          <0x0-0xFFFFFFFF:8>
+   81 00000000         ;//   <o3> Fast Interrupt Mode <0x0-0xFFFFFFFF:8>
+   82 00000000         ;//   <o4> Interrupt Mode      <0x0-0xFFFFFFFF:8>
+   83 00000000         ;//   <o5> User/System Mode    <0x0-0xFFFFFFFF:8>
+   84 00000000         ;// </h>
+   85 00000000         
+   86 00000000 00000000 
+                       UND_Stack_Size
+                               EQU              0x00000000
+   87 00000000 00000800 
+                       SVC_Stack_Size
+                               EQU              0x00000800
+   88 00000000 00000000 
+                       ABT_Stack_Size
+                               EQU              0x00000000
+   89 00000000 00000C00 
+                       FIQ_Stack_Size
+                               EQU              0x00000c00
+   90 00000000 00000C00 
+                       IRQ_Stack_Size
+                               EQU              0x00000c00
+   91 00000000 00008000 
+                       USR_Stack_Size
+                               EQU              0x00008000
+   92 00000000         
+   94 00000000 00002000 
+                       ISR_Stack_Size
+                               EQU              (UND_Stack_Size + SVC_Stack_Siz
+e + ABT_Stack_Size +                           FIQ_Stack_Size + IRQ_Stack_Size
+)
+   95 00000000         
+   96 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
+=3
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+   97 00000000         
+   98 00000000         Stack_Mem
+                               SPACE            USR_Stack_Size
+   99 00008000         __initial_sp
+                               SPACE            ISR_Stack_Size
+  100 0000A000         
+  101 0000A000         Stack_Top
+  102 0000A000         
+  103 0000A000         
+  104 0000A000         ;// <h> Heap Configuration
+  105 0000A000         ;//   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF>
+  106 0000A000         ;// </h>
+  107 0000A000         
+  108 0000A000 00050000 
+                       Heap_Size
+                               EQU              0x00050000
+  109 0000A000         
+  110 0000A000                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+3
+  111 00000000         __heap_base
+  112 00000000         Heap_Mem
+                               SPACE            Heap_Size
+  113 00050000         __heap_limit
+  114 00050000         
+  115 00050000         
+  116 00050000         ;----------------------- Clock Definitions -------------
+                       ------------------------
+  117 00050000         
+  118 00050000         ; System Control Block (SCB) Module Definitions
+  119 00050000 E01FC000 
+                       SCB_BASE
+                               EQU              0xE01FC000  ; SCB Base Address
+  120 00050000 00000080 
+                       PLLCON_OFS
+                               EQU              0x80        ; PLL Control Offse
+                                                            t
+  121 00050000 00000084 
+                       PLLCFG_OFS
+                               EQU              0x84        ; PLL Configuration
+                                                             Offset
+  122 00050000 00000088 
+                       PLLSTAT_OFS
+                               EQU              0x88        ; PLL Status Offset
+                                                            
+  123 00050000 0000008C 
+                       PLLFEED_OFS
+                               EQU              0x8C        ; PLL Feed Offset
+  124 00050000 00000104 
+                       CCLKCFG_OFS
+                               EQU              0x104       ; CPU Clock Divider
+                                                             Reg Offset
+  125 00050000 00000108 
+                       USBCLKCFG_OFS
+                               EQU              0x108       ; USB Clock Divider
+                                                             Reg Offset
+  126 00050000 0000010C 
+                       CLKSRCSEL_OFS
+                               EQU              0x10C       ; Clock Source Sel 
+                                                            Reg Offset
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  127 00050000 000001A0 
+                       SCS_OFS EQU              0x1A0       ; Sys Control and S
+                                                            tatus Reg Offset
+  128 00050000 000001A8 
+                       PCLKSEL0_OFS
+                               EQU              0x1A8       ; Periph Clock Sel 
+                                                            Reg 0 Offset
+  129 00050000 000001AC 
+                       PCLKSEL1_OFS
+                               EQU              0x1AC       ; Periph Clock Sel 
+                                                            Reg 0 Offset
+  130 00050000         
+  131 00050000 000000C0 
+                       PCON_OFS
+                               EQU              0x0C0       ; Power Mode Contro
+                                                            l Reg Offset
+  132 00050000 000000C4 
+                       PCONP_OFS
+                               EQU              0x0C4       ; Power Control for
+                                                             Periphs Reg Offset
+                                                            
+  133 00050000         
+  134 00050000         ; Constants
+  135 00050000 00000010 
+                       OSCRANGE
+                               EQU              (1<<4)      ; Oscillator Range 
+                                                            Select
+  136 00050000 00000020 
+                       OSCEN   EQU              (1<<5)      ; Main oscillator E
+                                                            nable
+  137 00050000 00000040 
+                       OSCSTAT EQU              (1<<6)      ; Main Oscillator S
+                                                            tatus
+  138 00050000 00000001 
+                       PLLCON_PLLE
+                               EQU              (1<<0)      ; PLL Enable
+  139 00050000 00000002 
+                       PLLCON_PLLC
+                               EQU              (1<<1)      ; PLL Connect
+  140 00050000 00007FFF 
+                       PLLSTAT_M
+                               EQU              (0x7FFF<<0) ; PLL M Value
+  141 00050000 00FF0000 
+                       PLLSTAT_N
+                               EQU              (0xFF<<16)  ; PLL N Value
+  142 00050000 04000000 
+                       PLLSTAT_PLOCK
+                               EQU              (1<<26)     ; PLL Lock Status
+  143 00050000         
+  144 00050000         ;// <e> Clock Setup
+  145 00050000         ;//   <h> System Controls and Status Register (SYS)
+  146 00050000         ;//     <o1.4>    OSCRANGE: Main Oscillator Range Select
+                       
+  147 00050000         ;//                     <0=>  1 MHz to 20 MHz
+  148 00050000         ;//                     <1=> 15 MHz to 24 MHz
+  149 00050000         ;//     <e1.5>       OSCEN: Main Oscillator Enable
+  150 00050000         ;//     </e>
+  151 00050000         ;//   </h>
+  152 00050000         ;//
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+  153 00050000         ;//   <h> PLL Clock Source Select Register (CLKSRCSEL)
+  154 00050000         ;//     <o2.0..1>   CLKSRC: PLL Clock Source Selection
+  155 00050000         ;//                     <0=> Internal RC oscillator
+  156 00050000         ;//                     <1=> Main oscillator
+  157 00050000         ;//                     <2=> RTC oscillator
+  158 00050000         ;//   </h>
+  159 00050000         ;//
+  160 00050000         ;//   <h> PLL Configuration Register (PLLCFG)
+  161 00050000         ;//                     <i> PLL_clk = (2* M * PLL_clk_sr
+                       c) / N
+  162 00050000         ;//     <o3.0..14>    MSEL: PLL Multiplier Selection
+  163 00050000         ;//                     <1-32768><#-1>
+  164 00050000         ;//                     <i> M Value
+  165 00050000         ;//     <o3.16..23>   NSEL: PLL Divider Selection
+  166 00050000         ;//                     <1-256><#-1>
+  167 00050000         ;//                     <i> N Value
+  168 00050000         ;//   </h>
+  169 00050000         ;//
+  170 00050000         ;//   <h> CPU Clock Configuration Register (CCLKCFG)
+  171 00050000         ;//     <o4.0..7>  CCLKSEL: Divide Value for CPU Clock f
+                       rom PLL
+  172 00050000         ;//                     <2-256:2><#-1>
+  173 00050000         ;//   </h>
+  174 00050000         ;//
+  175 00050000         ;//   <h> USB Clock Configuration Register (USBCLKCFG)
+  176 00050000         ;//     <o5.0..3>   USBSEL: Divide Value for USB Clock f
+                       rom PLL
+  177 00050000         ;//                     <1-16><#-1>
+  178 00050000         ;//   </h>
+  179 00050000         ;//
+  180 00050000         ;//   <h> Peripheral Clock Selection Register 0 (PCLKSEL
+                       0)
+  181 00050000         ;//     <o6.0..1>      PCLK_WDT: Peripheral Clock Select
+                       ion for WDT
+  182 00050000         ;//                     <0=> Pclk = Cclk / 4
+  183 00050000         ;//                     <1=> Pclk = Cclk
+  184 00050000         ;//                     <2=> Pclk = Cclk / 2
+  185 00050000         ;//                     <3=> Pclk = Cclk / 8
+  186 00050000         ;//     <o6.2..3>   PCLK_TIMER0: Peripheral Clock Select
+                       ion for TIMER0
+  187 00050000         ;//                     <0=> Pclk = Cclk / 4
+  188 00050000         ;//                     <1=> Pclk = Cclk
+  189 00050000         ;//                     <2=> Pclk = Cclk / 2
+  190 00050000         ;//                     <3=> Pclk = Cclk / 8
+  191 00050000         ;//     <o6.4..5>   PCLK_TIMER1: Peripheral Clock Select
+                       ion for TIMER1
+  192 00050000         ;//                     <0=> Pclk = Cclk / 4
+  193 00050000         ;//                     <1=> Pclk = Cclk
+  194 00050000         ;//                     <2=> Pclk = Cclk / 2
+  195 00050000         ;//                     <3=> Pclk = Cclk / 8
+  196 00050000         ;//     <o6.6..7>    PCLK_UART0: Peripheral Clock Select
+                       ion for UART0
+  197 00050000         ;//                     <0=> Pclk = Cclk / 4
+  198 00050000         ;//                     <1=> Pclk = Cclk
+  199 00050000         ;//                     <2=> Pclk = Cclk / 2
+  200 00050000         ;//                     <3=> Pclk = Cclk / 8
+  201 00050000         ;//     <o6.8..9>    PCLK_UART1: Peripheral Clock Select
+                       ion for UART1
+  202 00050000         ;//                     <0=> Pclk = Cclk / 4
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  203 00050000         ;//                     <1=> Pclk = Cclk
+  204 00050000         ;//                     <2=> Pclk = Cclk / 2
+  205 00050000         ;//                     <3=> Pclk = Cclk / 8
+  206 00050000         ;//     <o6.10..11>   PCLK_PWM0: Peripheral Clock Select
+                       ion for PWM0
+  207 00050000         ;//                     <0=> Pclk = Cclk / 4
+  208 00050000         ;//                     <1=> Pclk = Cclk
+  209 00050000         ;//                     <2=> Pclk = Cclk / 2
+  210 00050000         ;//                     <3=> Pclk = Cclk / 8
+  211 00050000         ;//     <o6.12..13>   PCLK_PWM1: Peripheral Clock Select
+                       ion for PWM1
+  212 00050000         ;//                     <0=> Pclk = Cclk / 4
+  213 00050000         ;//                     <1=> Pclk = Cclk
+  214 00050000         ;//                     <2=> Pclk = Cclk / 2
+  215 00050000         ;//                     <3=> Pclk = Cclk / 8
+  216 00050000         ;//     <o6.14..15>   PCLK_I2C0: Peripheral Clock Select
+                       ion for I2C0
+  217 00050000         ;//                     <0=> Pclk = Cclk / 4
+  218 00050000         ;//                     <1=> Pclk = Cclk
+  219 00050000         ;//                     <2=> Pclk = Cclk / 2
+  220 00050000         ;//                     <3=> Pclk = Cclk / 8
+  221 00050000         ;//     <o6.16..17>    PCLK_SPI: Peripheral Clock Select
+                       ion for SPI
+  222 00050000         ;//                     <0=> Pclk = Cclk / 4
+  223 00050000         ;//                     <1=> Pclk = Cclk
+  224 00050000         ;//                     <2=> Pclk = Cclk / 2
+  225 00050000         ;//                     <3=> Pclk = Cclk / 8
+  226 00050000         ;//     <o6.18..19>    PCLK_RTC: Peripheral Clock Select
+                       ion for RTC
+  227 00050000         ;//                     <0=> Pclk = Cclk / 4
+  228 00050000         ;//                     <1=> Pclk = Cclk
+  229 00050000         ;//                     <2=> Pclk = Cclk / 2
+  230 00050000         ;//                     <3=> Pclk = Cclk / 8
+  231 00050000         ;//     <o6.20..21>   PCLK_SSP1: Peripheral Clock Select
+                       ion for SSP1
+  232 00050000         ;//                     <0=> Pclk = Cclk / 4
+  233 00050000         ;//                     <1=> Pclk = Cclk
+  234 00050000         ;//                     <2=> Pclk = Cclk / 2
+  235 00050000         ;//                     <3=> Pclk = Cclk / 8
+  236 00050000         ;//     <o6.22..23>    PCLK_DAC: Peripheral Clock Select
+                       ion for DAC
+  237 00050000         ;//                     <0=> Pclk = Cclk / 4
+  238 00050000         ;//                     <1=> Pclk = Cclk
+  239 00050000         ;//                     <2=> Pclk = Cclk / 2
+  240 00050000         ;//                     <3=> Pclk = Cclk / 8
+  241 00050000         ;//     <o6.24..25>    PCLK_ADC: Peripheral Clock Select
+                       ion for ADC
+  242 00050000         ;//                     <0=> Pclk = Cclk / 4
+  243 00050000         ;//                     <1=> Pclk = Cclk
+  244 00050000         ;//                     <2=> Pclk = Cclk / 2
+  245 00050000         ;//                     <3=> Pclk = Cclk / 8
+  246 00050000         ;//     <o6.26..27>   PCLK_CAN1: Peripheral Clock Select
+                       ion for CAN1
+  247 00050000         ;//                     <0=> Pclk = Cclk / 4
+  248 00050000         ;//                     <1=> Pclk = Cclk
+  249 00050000         ;//                     <2=> Pclk = Cclk / 2
+  250 00050000         ;//                     <3=> Pclk = Cclk / 6
+  251 00050000         ;//     <o6.28..29>   PCLK_CAN2: Peripheral Clock Select
+                       ion for CAN2
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+  252 00050000         ;//                     <0=> Pclk = Cclk / 4
+  253 00050000         ;//                     <1=> Pclk = Cclk
+  254 00050000         ;//                     <2=> Pclk = Cclk / 2
+  255 00050000         ;//                     <3=> Pclk = Cclk / 6
+  256 00050000         ;//     <o6.30..31>    PCLK_ACF: Peripheral Clock Select
+                       ion for ACF
+  257 00050000         ;//                     <0=> Pclk = Cclk / 4
+  258 00050000         ;//                     <1=> Pclk = Cclk
+  259 00050000         ;//                     <2=> Pclk = Cclk / 2
+  260 00050000         ;//                     <3=> Pclk = Cclk / 6
+  261 00050000         ;//   </h>
+  262 00050000         ;//
+  263 00050000         ;//   <h> Peripheral Clock Selection Register 1 (PCLKSEL
+                       1)
+  264 00050000         ;//     <o7.0..1>  PCLK_BAT_RAM: Peripheral Clock Select
+                       ion for the Battery Supported RAM
+  265 00050000         ;//                     <0=> Pclk = Cclk / 4
+  266 00050000         ;//                     <1=> Pclk = Cclk
+  267 00050000         ;//                     <2=> Pclk = Cclk / 2
+  268 00050000         ;//                     <3=> Pclk = Cclk / 8
+  269 00050000         ;//     <o7.2..3>     PCLK_GPIO: Peripheral Clock Select
+                       ion for GPIOs
+  270 00050000         ;//                     <0=> Pclk = Cclk / 4
+  271 00050000         ;//                     <1=> Pclk = Cclk
+  272 00050000         ;//                     <2=> Pclk = Cclk / 2
+  273 00050000         ;//                     <3=> Pclk = Cclk / 8
+  274 00050000         ;//     <o7.4..5>      PCLK_PCB: Peripheral Clock Select
+                       ion for Pin Connect Block
+  275 00050000         ;//                     <0=> Pclk = Cclk / 4
+  276 00050000         ;//                     <1=> Pclk = Cclk
+  277 00050000         ;//                     <2=> Pclk = Cclk / 2
+  278 00050000         ;//                     <3=> Pclk = Cclk / 8
+  279 00050000         ;//     <o7.6..7>     PCLK_I2C1: Peripheral Clock Select
+                       ion for I2C1
+  280 00050000         ;//                     <0=> Pclk = Cclk / 4
+  281 00050000         ;//                     <1=> Pclk = Cclk
+  282 00050000         ;//                     <2=> Pclk = Cclk / 2
+  283 00050000         ;//                     <3=> Pclk = Cclk / 8
+  284 00050000         ;//     <o7.10..11>   PCLK_SSP0: Peripheral Clock Select
+                       ion for SSP0
+  285 00050000         ;//                     <0=> Pclk = Cclk / 4
+  286 00050000         ;//                     <1=> Pclk = Cclk
+  287 00050000         ;//                     <2=> Pclk = Cclk / 2
+  288 00050000         ;//                     <3=> Pclk = Cclk / 8
+  289 00050000         ;//     <o7.12..13> PCLK_TIMER2: Peripheral Clock Select
+                       ion for TIMER2
+  290 00050000         ;//                     <0=> Pclk = Cclk / 4
+  291 00050000         ;//                     <1=> Pclk = Cclk
+  292 00050000         ;//                     <2=> Pclk = Cclk / 2
+  293 00050000         ;//                     <3=> Pclk = Cclk / 8
+  294 00050000         ;//     <o7.14..15> PCLK_TIMER3: Peripheral Clock Select
+                       ion for TIMER3
+  295 00050000         ;//                     <0=> Pclk = Cclk / 4
+  296 00050000         ;//                     <1=> Pclk = Cclk
+  297 00050000         ;//                     <2=> Pclk = Cclk / 2
+  298 00050000         ;//                     <3=> Pclk = Cclk / 8
+  299 00050000         ;//     <o7.16..17>  PCLK_UART2: Peripheral Clock Select
+                       ion for UART2
+  300 00050000         ;//                     <0=> Pclk = Cclk / 4
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+  301 00050000         ;//                     <1=> Pclk = Cclk
+  302 00050000         ;//                     <2=> Pclk = Cclk / 2
+  303 00050000         ;//                     <3=> Pclk = Cclk / 8
+  304 00050000         ;//     <o7.18..19>  PCLK_UART3: Peripheral Clock Select
+                       ion for UART3
+  305 00050000         ;//                     <0=> Pclk = Cclk / 4
+  306 00050000         ;//                     <1=> Pclk = Cclk
+  307 00050000         ;//                     <2=> Pclk = Cclk / 2
+  308 00050000         ;//                     <3=> Pclk = Cclk / 8
+  309 00050000         ;//     <o7.20..21>   PCLK_I2C2: Peripheral Clock Select
+                       ion for I2C2
+  310 00050000         ;//                     <0=> Pclk = Cclk / 4
+  311 00050000         ;//                     <1=> Pclk = Cclk
+  312 00050000         ;//                     <2=> Pclk = Cclk / 2
+  313 00050000         ;//                     <3=> Pclk = Cclk / 8
+  314 00050000         ;//     <o7.22..23>    PCLK_I2S: Peripheral Clock Select
+                       ion for I2S
+  315 00050000         ;//                     <0=> Pclk = Cclk / 4
+  316 00050000         ;//                     <1=> Pclk = Cclk
+  317 00050000         ;//                     <2=> Pclk = Cclk / 2
+  318 00050000         ;//                     <3=> Pclk = Cclk / 8
+  319 00050000         ;//     <o7.24..25>    PCLK_MCI: Peripheral Clock Select
+                       ion for MCI
+  320 00050000         ;//                     <0=> Pclk = Cclk / 4
+  321 00050000         ;//                     <1=> Pclk = Cclk
+  322 00050000         ;//                     <2=> Pclk = Cclk / 2
+  323 00050000         ;//                     <3=> Pclk = Cclk / 8
+  324 00050000         ;//     <o7.28..29> PCLK_SYSCON: Peripheral Clock Select
+                       ion for System Control Block
+  325 00050000         ;//                     <0=> Pclk = Cclk / 4
+  326 00050000         ;//                     <1=> Pclk = Cclk
+  327 00050000         ;//                     <2=> Pclk = Cclk / 2
+  328 00050000         ;//                     <3=> Pclk = Cclk / 8
+  329 00050000         ;//   </h>
+  330 00050000         ;// </e>
+  331 00050000 00000001 
+                       CLOCK_SETUP
+                               EQU              1
+  332 00050000 00000020 
+                       SCS_Val EQU              0x00000020
+  333 00050000 00000001 
+                       CLKSRCSEL_Val
+                               EQU              0x00000001
+  334 00050000 0000000B 
+                       PLLCFG_Val
+                               EQU              0x0000000b
+  335 00050000 00000003 
+                       CCLKCFG_Val
+                               EQU              0x00000003
+  336 00050000 00000005 
+                       USBCLKCFG_Val
+                               EQU              0x00000005
+  337 00050000 00000280 
+                       PCLKSEL0_Val
+                               EQU              0x00000280
+  338 00050000 00020000 
+                       PCLKSEL1_Val
+                               EQU              0x00020000
+  339 00050000         
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+  340 00050000         
+  341 00050000         ;----------------------- Memory Accelerator Module (MAM)
+                        Definitions -----------
+  342 00050000         
+  343 00050000 E01FC000 
+                       MAM_BASE
+                               EQU              0xE01FC000  ; MAM Base Address
+  344 00050000 00000000 
+                       MAMCR_OFS
+                               EQU              0x00        ; MAM Control Offse
+                                                            t
+  345 00050000 00000004 
+                       MAMTIM_OFS
+                               EQU              0x04        ; MAM Timing Offset
+                                                            
+  346 00050000         
+  347 00050000         ;// <e> MAM Setup
+  348 00050000         ;//   <o1.0..1>   MAM Control
+  349 00050000         ;//               <0=> Disabled
+  350 00050000         ;//               <1=> Partially Enabled
+  351 00050000         ;//               <2=> Fully Enabled
+  352 00050000         ;//               <i> Mode
+  353 00050000         ;//   <o2.0..2>   MAM Timing
+  354 00050000         ;//               <0=> Reserved  <1=> 1   <2=> 2   <3=> 
+                       3
+  355 00050000         ;//               <4=> 4         <5=> 5   <6=> 6   <7=> 
+                       7
+  356 00050000         ;//               <i> Fetch Cycles
+  357 00050000         ;// </e>
+  358 00050000 00000001 
+                       MAM_SETUP
+                               EQU              1
+  359 00050000 00000002 
+                       MAMCR_Val
+                               EQU              0x00000002
+  360 00050000 00000004 
+                       MAMTIM_Val
+                               EQU              0x00000004
+  361 00050000         
+  362 00050000         
+  363 00050000         ;----------------------- Pin Connect Block Definitions -
+                       ------------------------
+  364 00050000         
+  365 00050000 E002C000 
+                       PCB_BASE
+                               EQU              0xE002C000  ; PCB Base Address
+  366 00050000 00000000 
+                       PINSEL0_OFS
+                               EQU              0x00        ; PINSEL0  Address 
+                                                            Offset
+  367 00050000 00000004 
+                       PINSEL1_OFS
+                               EQU              0x04        ; PINSEL1  Address 
+                                                            Offset
+  368 00050000 00000008 
+                       PINSEL2_OFS
+                               EQU              0x08        ; PINSEL2  Address 
+                                                            Offset
+  369 00050000 0000000C 
+
+
+
+ARM Macro Assembler    Page 11 
+
+
+                       PINSEL3_OFS
+                               EQU              0x0C        ; PINSEL3  Address 
+                                                            Offset
+  370 00050000 00000010 
+                       PINSEL4_OFS
+                               EQU              0x10        ; PINSEL4  Address 
+                                                            Offset
+  371 00050000 00000014 
+                       PINSEL5_OFS
+                               EQU              0x14        ; PINSEL5  Address 
+                                                            Offset
+  372 00050000 00000018 
+                       PINSEL6_OFS
+                               EQU              0x18        ; PINSEL6  Address 
+                                                            Offset
+  373 00050000 0000001C 
+                       PINSEL7_OFS
+                               EQU              0x1C        ; PINSEL7  Address 
+                                                            Offset
+  374 00050000 00000020 
+                       PINSEL8_OFS
+                               EQU              0x20        ; PINSEL8  Address 
+                                                            Offset
+  375 00050000 00000024 
+                       PINSEL9_OFS
+                               EQU              0x24        ; PINSEL9  Address 
+                                                            Offset
+  376 00050000 00000028 
+                       PINSEL10_OFS
+                               EQU              0x28        ; PINSEL10 Address 
+                                                            Offset
+  377 00050000         
+  378 00050000         
+  379 00050000         ;----------------------- External Memory Controller (EMC
+                       ) Definitons -----------
+  380 00050000         
+  381 00050000 FFE08000 
+                       EMC_BASE
+                               EQU              0xFFE08000  ; EMC Base Address
+  382 00050000         
+  383 00050000 00000000 
+                       EMC_CTRL_OFS
+                               EQU              0x000
+  384 00050000 00000004 
+                       EMC_STAT_OFS
+                               EQU              0x004
+  385 00050000 00000008 
+                       EMC_CONFIG_OFS
+                               EQU              0x008
+  386 00050000 00000020 
+                       EMC_DYN_CTRL_OFS
+                               EQU              0x020
+  387 00050000 00000024 
+                       EMC_DYN_RFSH_OFS
+                               EQU              0x024
+  388 00050000 00000028 
+                       EMC_DYN_RD_CFG_OFS
+                               EQU              0x028
+  389 00050000 00000030 
+
+
+
+ARM Macro Assembler    Page 12 
+
+
+                       EMC_DYN_RP_OFS
+                               EQU              0x030
+  390 00050000 00000034 
+                       EMC_DYN_RAS_OFS
+                               EQU              0x034
+  391 00050000 00000038 
+                       EMC_DYN_SREX_OFS
+                               EQU              0x038
+  392 00050000 0000003C 
+                       EMC_DYN_APR_OFS
+                               EQU              0x03C
+  393 00050000 00000040 
+                       EMC_DYN_DAL_OFS
+                               EQU              0x040
+  394 00050000 00000044 
+                       EMC_DYN_WR_OFS
+                               EQU              0x044
+  395 00050000 00000048 
+                       EMC_DYN_RC_OFS
+                               EQU              0x048
+  396 00050000 0000004C 
+                       EMC_DYN_RFC_OFS
+                               EQU              0x04C
+  397 00050000 00000050 
+                       EMC_DYN_XSR_OFS
+                               EQU              0x050
+  398 00050000 00000054 
+                       EMC_DYN_RRD_OFS
+                               EQU              0x054
+  399 00050000 00000058 
+                       EMC_DYN_MRD_OFS
+                               EQU              0x058
+  400 00050000 00000100 
+                       EMC_DYN_CFG0_OFS
+                               EQU              0x100
+  401 00050000 00000104 
+                       EMC_DYN_RASCAS0_OFS
+                               EQU              0x104
+  402 00050000 00000140 
+                       EMC_DYN_CFG1_OFS
+                               EQU              0x140
+  403 00050000 00000144 
+                       EMC_DYN_RASCAS1_OFS
+                               EQU              0x144
+  404 00050000 00000160 
+                       EMC_DYN_CFG2_OFS
+                               EQU              0x160
+  405 00050000 00000164 
+                       EMC_DYN_RASCAS2_OFS
+                               EQU              0x164
+  406 00050000 00000180 
+                       EMC_DYN_CFG3_OFS
+                               EQU              0x180
+  407 00050000 00000184 
+                       EMC_DYN_RASCAS3_OFS
+                               EQU              0x184
+  408 00050000 00000200 
+                       EMC_STA_CFG0_OFS
+                               EQU              0x200
+
+
+
+ARM Macro Assembler    Page 13 
+
+
+  409 00050000 00000204 
+                       EMC_STA_WWEN0_OFS
+                               EQU              0x204
+  410 00050000 00000208 
+                       EMC_STA_WOEN0_OFS
+                               EQU              0x208
+  411 00050000 0000020C 
+                       EMC_STA_WRD0_OFS
+                               EQU              0x20C
+  412 00050000 00000210 
+                       EMC_STA_WPAGE0_OFS
+                               EQU              0x210
+  413 00050000 00000214 
+                       EMC_STA_WWR0_OFS
+                               EQU              0x214
+  414 00050000 00000218 
+                       EMC_STA_WTURN0_OFS
+                               EQU              0x218
+  415 00050000 00000220 
+                       EMC_STA_CFG1_OFS
+                               EQU              0x220
+  416 00050000 00000224 
+                       EMC_STA_WWEN1_OFS
+                               EQU              0x224
+  417 00050000 00000228 
+                       EMC_STA_WOEN1_OFS
+                               EQU              0x228
+  418 00050000 0000022C 
+                       EMC_STA_WRD1_OFS
+                               EQU              0x22C
+  419 00050000 00000230 
+                       EMC_STA_WPAGE1_OFS
+                               EQU              0x230
+  420 00050000 00000234 
+                       EMC_STA_WWR1_OFS
+                               EQU              0x234
+  421 00050000 00000238 
+                       EMC_STA_WTURN1_OFS
+                               EQU              0x238
+  422 00050000 00000240 
+                       EMC_STA_CFG2_OFS
+                               EQU              0x240
+  423 00050000 00000244 
+                       EMC_STA_WWEN2_OFS
+                               EQU              0x244
+  424 00050000 00000248 
+                       EMC_STA_WOEN2_OFS
+                               EQU              0x248
+  425 00050000 0000024C 
+                       EMC_STA_WRD2_OFS
+                               EQU              0x24C
+  426 00050000 00000250 
+                       EMC_STA_WPAGE2_OFS
+                               EQU              0x250
+  427 00050000 00000254 
+                       EMC_STA_WWR2_OFS
+                               EQU              0x254
+  428 00050000 00000258 
+                       EMC_STA_WTURN2_OFS
+
+
+
+ARM Macro Assembler    Page 14 
+
+
+                               EQU              0x258
+  429 00050000 00000260 
+                       EMC_STA_CFG3_OFS
+                               EQU              0x260
+  430 00050000 00000264 
+                       EMC_STA_WWEN3_OFS
+                               EQU              0x264
+  431 00050000 00000268 
+                       EMC_STA_WOEN3_OFS
+                               EQU              0x268
+  432 00050000 0000026C 
+                       EMC_STA_WRD3_OFS
+                               EQU              0x26C
+  433 00050000 00000270 
+                       EMC_STA_WPAGE3_OFS
+                               EQU              0x270
+  434 00050000 00000274 
+                       EMC_STA_WWR3_OFS
+                               EQU              0x274
+  435 00050000 00000278 
+                       EMC_STA_WTURN3_OFS
+                               EQU              0x278
+  436 00050000 00000080 
+                       EMC_STA_EXT_W_OFS
+                               EQU              0x080
+  437 00050000         
+  438 00050000         ; Constants
+  439 00050000 00000000 
+                       NORMAL_CMD
+                               EQU              (0x0 << 7)  ; NORMAL        Com
+                                                            mand
+  440 00050000 00000080 
+                       MODE_CMD
+                               EQU              (0x1 << 7)  ; MODE          Com
+                                                            mand
+  441 00050000 00000100 
+                       PALL_CMD
+                               EQU              (0x2 << 7)  ; Precharge All Com
+                                                            mand
+  442 00050000 00000180 
+                       NOP_CMD EQU              (0x3 << 7)  ; NOP           Com
+                                                            mand
+  443 00050000         
+  444 00050000 00080000 
+                       BUFEN_Const
+                               EQU              (1 << 19)   ; Buffer enable bit
+                                                            
+  445 00050000 00000800 
+                       EMC_PCONP_Const
+                               EQU              (1 << 11)   ; PCONP val to enab
+                                                            le power for EMC
+  446 00050000         
+  447 00050000         ;Generial GPIO setting
+  448 00050000 00000000 
+                       PINSEL0_Val
+                               EQU              0x00000000
+  449 00050000 00000000 
+                       PINSEL1_Val
+                               EQU              0x00000000
+
+
+
+ARM Macro Assembler    Page 15 
+
+
+  450 00050000 00000000 
+                       PINSEL2_Val
+                               EQU              0x00000000
+  451 00050000 00000000 
+                       PINSEL3_Val
+                               EQU              0x00000000
+  452 00050000 00000000 
+                       PINSEL4_Val
+                               EQU              0x00000000
+  453 00050000         ; External Memory Pins definitions
+  454 00050000         ; pin functions for SDRAM, NOR and NAND flash interfacin
+                       g
+  455 00050000 55010115 
+                       EMC_PINSEL5_Val
+                               EQU              0x55010115  ; !CAS, !RAS, CLKOU
+                                                            T0, !DYCS0, DQMOUT0
+                                                            , DQMOUT1, DQMOUT2,
+                                                             DQMOUT3
+  456 00050000 55555555 
+                       EMC_PINSEL6_Val
+                               EQU              0x55555555  ; D0 .. D15
+  457 00050000 05555555 
+                       EMC_PINSEL7_Val
+                               EQU              0x05555555  ; D16..D31
+  458 00050000 55555555 
+                       EMC_PINSEL8_Val
+                               EQU              0x55555555  ; A0 .. A15
+  459 00050000 50055555 
+                       EMC_PINSEL9_Val
+                               EQU              0x50055555  ;     ; A16 .. A23,
+                                                             !OE, !WE, !CS0, !C
+                                                            S1
+  460 00050000 00000000 
+                       EMC_PINSEL10_Val
+                               EQU              0x0         ;
+  461 00050000         ;//     External Memory Controller Setup (EMC) ---------
+                       ------------------------
+  462 00050000         ;// <e> External Memory Controller Setup (EMC)
+  463 00050000 00000001 
+                       EMC_SETUP
+                               EQU              1
+  464 00050000         
+  465 00050000         ;//   <h> EMC Control Register (EMCControl)
+  466 00050000         ;//     <i> Controls operation of the memory controller
+  467 00050000         ;//     <o0.2> L: Low-power mode enable
+  468 00050000         ;//     <o0.1> M: Address mirror enable
+  469 00050000         ;//     <o0.0> E: EMC enable
+  470 00050000         ;//   </h>
+  471 00050000 00000001 
+                       EMC_CTRL_Val
+                               EQU              0x00000001
+  472 00050000         
+  473 00050000         ;//   <h> EMC Configuration Register (EMCConfig)
+  474 00050000         ;//     <i> Configures operation of the memory controlle
+                       r
+  475 00050000         ;//     <o0.8> CCLK: CLKOUT ratio
+  476 00050000         ;//       <0=> 1:1
+  477 00050000         ;//       <1=> 1:2
+  478 00050000         ;//     <o0.0> Endian mode
+
+
+
+ARM Macro Assembler    Page 16 
+
+
+  479 00050000         ;//       <0=> Little-endian
+  480 00050000         ;//       <1=> Big-endian
+  481 00050000         ;//   </h>
+  482 00050000 00000000 
+                       EMC_CONFIG_Val
+                               EQU              0x00000000
+  483 00050000         
+  484 00050000         ;//       Dynamic Memory Interface Setup ---------------
+                       ------------------------
+  485 00050000         ;//   <e> Dynamic Memory Interface Setup
+  486 00050000 00000001 
+                       EMC_DYNAMIC_SETUP
+                               EQU              1
+  487 00050000         
+  488 00050000         ;//     <h> Dynamic Memory Refresh Timer Register (EMCDy
+                       namicRefresh)
+  489 00050000         ;//       <i> Configures dynamic memory refresh operatio
+                       n
+  490 00050000         ;//       <o0.0..10> REFRESH: Refresh timer <0x000-0x7FF
+                       >
+  491 00050000         ;//         <i> 0 = refresh disabled, 0x01-0x7FF: value 
+                       * 16 CCLKS
+  492 00050000         ;//     </h>
+  493 00050000 0000001C 
+                       EMC_DYN_RFSH_Val
+                               EQU              0x0000001C
+  494 00050000         
+  495 00050000         ;//     <h> Dynamic Memory Read Configuration Register (
+                       EMCDynamicReadConfig)
+  496 00050000         ;//       <i> Configures the dynamic memory read strateg
+                       y
+  497 00050000         ;//       <o0.0..1> RD: Read data strategy
+  498 00050000         ;//                  <0=> Clock out delayed strategy
+  499 00050000         ;//         <1=> Command delayed strategy
+  500 00050000         ;//         <2=> Command delayed strategy plus one clock
+                        cycle
+  501 00050000         ;//         <3=> Command delayed strategy plus two clock
+                        cycles
+  502 00050000         ;//     </h>
+  503 00050000 00000001 
+                       EMC_DYN_RD_CFG_Val
+                               EQU              0x00000001
+  504 00050000         
+  505 00050000         ;//     <h> Dynamic Memory Timings
+  506 00050000         ;//       <h> Dynamic Memory Percentage Command Period R
+                       egister (EMCDynamictRP)
+  507 00050000         ;//         <o0.0..3> tRP: Precharge command period <1-1
+                       6> <#-1>
+  508 00050000         ;//           <i> The delay is in EMCCLK cycles
+  509 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tRP
+  510 00050000         ;//       </h>
+  511 00050000         ;//       <h> Dynamic Memory Active to Precharge Command
+                        Period Register (EMCDynamictRAS)
+  512 00050000         ;//         <o1.0..3> tRAS: Active to precharge command 
+                       period <1-16> <#-1>
+  513 00050000         ;//           <i> The delay is in EMCCLK cycles
+  514 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tRAS
+
+
+
+ARM Macro Assembler    Page 17 
+
+
+  515 00050000         ;//       </h>
+  516 00050000         ;//       <h> Dynamic Memory Self-refresh Exit Time Regi
+                       ster (EMCDynamictSREX)
+  517 00050000         ;//         <o2.0..3> tSREX: Self-refresh exit time <1-1
+                       6> <#-1>
+  518 00050000         ;//           <i> The delay is in CCLK cycles
+  519 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tSREX, 
+  520 00050000         ;//           <i> for devices without this parameter you
+                        use the same value as tXSR
+  521 00050000         ;//       </h>
+  522 00050000         ;//       <h> Dynamic Memory Last Data Out to Active Tim
+                       e Register (EMCDynamictAPR)
+  523 00050000         ;//         <o3.0..3> tAPR: Last-data-out to active comm
+                       and time <1-16> <#-1>
+  524 00050000         ;//           <i> The delay is in CCLK cycles
+  525 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tAPR
+  526 00050000         ;//       </h>
+  527 00050000         ;//       <h> Dynamic Memory Data-in to Active Command T
+                       ime Register (EMCDynamictDAL)
+  528 00050000         ;//         <o4.0..3> tDAL: Data-in to active command ti
+                       me <1-16> <#-1>
+  529 00050000         ;//           <i> The delay is in CCLK cycles
+  530 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tDAL or tAPW
+  531 00050000         ;//       </h>
+  532 00050000         ;//       <h> Dynamic Memory Write Recovery Time Registe
+                       r (EMCDynamictWR)
+  533 00050000         ;//         <o5.0..3> tWR: Write recovery time <1-16> <#
+                       -1>
+  534 00050000         ;//           <i> The delay is in CCLK cycles
+  535 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tWR, tDPL, tRWL, or tRDL
+  536 00050000         ;//       </h>
+  537 00050000         ;//       <h> Dynamic Memory Active to Active Command Pe
+                       riod Register (EMCDynamictRC)
+  538 00050000         ;//         <o6.0..4> tRC: Active to active command peri
+                       od <1-32> <#-1>
+  539 00050000         ;//           <i> The delay is in CCLK cycles
+  540 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tRC
+  541 00050000         ;//       </h>
+  542 00050000         ;//       <h> Dynamic Memory Auto-refresh Period Registe
+                       r (EMCDynamictRFC)
+  543 00050000         ;//         <o7.0..4> tRFC: Auto-refresh period and auto
+                       -refresh to active command period <1-32> <#-1>
+  544 00050000         ;//           <i> The delay is in CCLK cycles
+  545 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tRFC or  tRC
+  546 00050000         ;//       </h>
+  547 00050000         ;//       <h> Dynamic Memory Exit Self-refresh Register 
+                       (EMCDynamictXSR)
+  548 00050000         ;//         <o8.0..4> tXSR: Exit self-refresh to active 
+                       command time <1-32> <#-1>
+  549 00050000         ;//           <i> The delay is in CCLK cycles
+  550 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tXSR
+  551 00050000         ;//       </h>
+
+
+
+ARM Macro Assembler    Page 18 
+
+
+  552 00050000         ;//       <h> Dynamic Memory Active Bank A to Active Ban
+                       k B Time Register (EMCDynamicRRD)
+  553 00050000         ;//         <o9.0..3> tRRD: Active bank A to active bank
+                        B latency <1-16> <#-1>
+  554 00050000         ;//           <i> The delay is in CCLK cycles
+  555 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tRRD
+  556 00050000         ;//       </h>
+  557 00050000         ;//       <h> Dynamic Memory Load Mode Register to Activ
+                       e Command Time (EMCDynamictMRD)
+  558 00050000         ;//         <o10.0..3> tMRD: Load mode register to activ
+                       e command time <1-16> <#-1>
+  559 00050000         ;//           <i> The delay is in CCLK cycles
+  560 00050000         ;//           <i> This value is normally found in SDRAM 
+                       data sheets as tMRD or tRSA
+  561 00050000         ;//       </h>
+  562 00050000         ;//     </h>
+  563 00050000 00000002 
+                       EMC_DYN_RP_Val
+                               EQU              0x00000002
+  564 00050000 00000003 
+                       EMC_DYN_RAS_Val
+                               EQU              0x00000003
+  565 00050000 00000007 
+                       EMC_DYN_SREX_Val
+                               EQU              0x00000007
+  566 00050000 00000002 
+                       EMC_DYN_APR_Val
+                               EQU              0x00000002
+  567 00050000 00000005 
+                       EMC_DYN_DAL_Val
+                               EQU              0x00000005
+  568 00050000 00000001 
+                       EMC_DYN_WR_Val
+                               EQU              0x00000001
+  569 00050000 00000005 
+                       EMC_DYN_RC_Val
+                               EQU              0x00000005
+  570 00050000 00000005 
+                       EMC_DYN_RFC_Val
+                               EQU              0x00000005
+  571 00050000 00000007 
+                       EMC_DYN_XSR_Val
+                               EQU              0x00000007
+  572 00050000 00000001 
+                       EMC_DYN_RRD_Val
+                               EQU              0x00000001
+  573 00050000 00000002 
+                       EMC_DYN_MRD_Val
+                               EQU              0x00000002
+  574 00050000         
+  575 00050000         ;//     <e> Configure External Bus Behaviour for Dynamic
+                        CS0 Area
+  576 00050000 00000001 
+                       EMC_DYNCS0_SETUP
+                               EQU              1
+  577 00050000         
+  578 00050000         ;//       <h> Dynamic Memory Configuration Register (EMC
+                       DynamicConfig0)
+
+
+
+ARM Macro Assembler    Page 19 
+
+
+  579 00050000         ;//         <i> Defines the configuration information fo
+                       r the dynamic memory CS0
+  580 00050000         ;//         <o0.20> P: Write protect
+  581 00050000         ;//         <o0.19> B: Buffer enable
+  582 00050000         ;//         <o0.14> AM 14: External bus data width
+  583 00050000         ;//           <0=> 16 bit
+  584 00050000         ;//           <1=> 32 bit
+  585 00050000         ;//         <o0.12> AM 12: External bus memory type
+  586 00050000         ;//           <0=> High-performance
+  587 00050000         ;//           <1=> Low-power SDRAM
+  588 00050000         ;//         <o0.7..11> AM 11..7: External bus address ma
+                       pping (Row, Bank, Column)
+  589 00050000         ;//           <0x00=> 16 Mb = 2MB (2Mx8), 2 banks, row l
+                       ength = 11, column length = 9
+  590 00050000         ;//           <0x01=> 16 Mb = 2MB (1Mx16), 2 banks, row 
+                       length = 11, column length = 8
+  591 00050000         ;//           <0x04=> 64 Mb = 8MB (8Mx8), 4 banks, row l
+                       ength = 12, column length = 9
+  592 00050000         ;//           <0x05=> 64 Mb = 8MB (4Mx16), 4 banks, row 
+                       length = 12, column length = 8
+  593 00050000         ;//           <0x08=> 128 Mb = 16MB (16Mx8), 4 banks, ro
+                       w length = 12, column length = 10
+  594 00050000         ;//           <0x09=> 128 Mb = 16MB (8Mx16), 4 banks, ro
+                       w length = 12, column length = 9
+  595 00050000         ;//           <0x0C=> 256 Mb = 32MB (32Mx8), 4 banks, ro
+                       w length = 13, column length = 10
+  596 00050000         ;//           <0x0D=> 256 Mb = 32MB (16Mx16), 4 banks, r
+                       ow length = 13, column length = 9
+  597 00050000         ;//           <0x10=> 512 Mb = 64MB (64Mx8), 4 banks, ro
+                       w length = 13, column length = 11
+  598 00050000         ;//           <0x11=> 512 Mb = 64MB (32Mx16), 4 banks, r
+                       ow length = 13, column length = 10
+  599 00050000         ;//         <o0.3..4> MD: Memory device
+  600 00050000         ;//           <0=> SDRAM
+  601 00050000         ;//           <1=> Low-power SDRAM
+  602 00050000         ;//           <2=> Micron SyncFlash
+  603 00050000         ;//       </h>
+  604 00050000 00080680 
+                       EMC_DYN_CFG0_Val
+                               EQU              0x00080680
+  605 00050000         
+  606 00050000         ;//       <h> Dynamic Memory RAS & CAS Delay register (E
+                       MCDynamicRASCAS0)
+  607 00050000         ;//         <i> Controls the RAS and CAS latencies for t
+                       he dynamic memory CS0
+  608 00050000         ;//         <o0.8..9> CAS: CAS latency
+  609 00050000         ;//           <1=> One CCLK cycle
+  610 00050000         ;//           <2=> Two CCLK cycles
+  611 00050000         ;//           <3=> Three CCLK cycles
+  612 00050000         ;//         <o0.0..1> RAS: RAS latency (active to read/w
+                       rite delay)
+  613 00050000         ;//           <1=> One CCLK cycle
+  614 00050000         ;//           <2=> Two CCLK cycles
+  615 00050000         ;//           <3=> Three CCLK cycles
+  616 00050000         ;//       </h>
+  617 00050000 00000303 
+                       EMC_DYN_RASCAS0_Val
+                               EQU              0x00000303
+  618 00050000         
+
+
+
+ARM Macro Assembler    Page 20 
+
+
+  619 00050000         ;//     </e> End of Dynamic Setup for CS0 Area
+  620 00050000         
+  621 00050000         
+  622 00050000         ;//     <e> Configure External Bus Behaviour for Dynamic
+                        CS1 Area
+  623 00050000 00000000 
+                       EMC_DYNCS1_SETUP
+                               EQU              0
+  624 00050000         
+  625 00050000         ;//       <h> Dynamic Memory Configuration Register (EMC
+                       DynamicConfig1)
+  626 00050000         ;//         <i> Defines the configuration information fo
+                       r the dynamic memory CS1
+  627 00050000         ;//         <o0.20> P: Write protect
+  628 00050000         ;//         <o0.19> B: Buffer enable
+  629 00050000         ;//         <o0.14> AM 14: External bus data width
+  630 00050000         ;//           <0=> 16 bit
+  631 00050000         ;//           <1=> 32 bit
+  632 00050000         ;//         <o0.12> AM 12: External bus memory type
+  633 00050000         ;//           <0=> High-performance
+  634 00050000         ;//           <1=> Low-power SDRAM
+  635 00050000         ;//         <o0.7..11> AM 11..7: External bus address ma
+                       pping (Row, Bank, Column)
+  636 00050000         ;//           <0x00=> 16 Mb = 2MB (2Mx8), 2 banks, row l
+                       ength = 11, column length = 9
+  637 00050000         ;//           <0x01=> 16 Mb = 2MB (1Mx16), 2 banks, row 
+                       length = 11, column length = 8
+  638 00050000         ;//           <0x04=> 64 Mb = 8MB (8Mx8), 4 banks, row l
+                       ength = 12, column length = 9
+  639 00050000         ;//           <0x05=> 64 Mb = 8MB (4Mx16), 4 banks, row 
+                       length = 12, column length = 8
+  640 00050000         ;//           <0x08=> 128 Mb = 16MB (16Mx8), 4 banks, ro
+                       w length = 12, column length = 10
+  641 00050000         ;//           <0x09=> 128 Mb = 16MB (8Mx16), 4 banks, ro
+                       w length = 12, column length = 9
+  642 00050000         ;//           <0x0C=> 256 Mb = 32MB (32Mx8), 4 banks, ro
+                       w length = 13, column length = 10
+  643 00050000         ;//           <0x0D=> 256 Mb = 32MB (16Mx16), 4 banks, r
+                       ow length = 13, column length = 9
+  644 00050000         ;//           <0x10=> 512 Mb = 64MB (64Mx8), 4 banks, ro
+                       w length = 13, column length = 11
+  645 00050000         ;//           <0x11=> 512 Mb = 64MB (32Mx16), 4 banks, r
+                       ow length = 13, column length = 10
+  646 00050000         ;//         <o0.3..4> MD: Memory device
+  647 00050000         ;//           <0=> SDRAM
+  648 00050000         ;//           <1=> Low-power SDRAM
+  649 00050000         ;//           <2=> Micron SyncFlash
+  650 00050000         ;//       </h>
+  651 00050000 00000000 
+                       EMC_DYN_CFG1_Val
+                               EQU              0x00000000
+  652 00050000         
+  653 00050000         ;//       <h> Dynamic Memory RAS & CAS Delay register (E
+                       MCDynamicRASCAS1)
+  654 00050000         ;//         <i> Controls the RAS and CAS latencies for t
+                       he dynamic memory CS1
+  655 00050000         ;//         <o0.8..9> CAS: CAS latency
+  656 00050000         ;//           <1=> One CCLK cycle
+  657 00050000         ;//           <2=> Two CCLK cycles
+
+
+
+ARM Macro Assembler    Page 21 
+
+
+  658 00050000         ;//           <3=> Three CCLK cycles
+  659 00050000         ;//         <o0.0..1> RAS: RAS latency (active to read/w
+                       rite delay)
+  660 00050000         ;//           <1=> One CCLK cycle
+  661 00050000         ;//           <2=> Two CCLK cycles
+  662 00050000         ;//           <3=> Three CCLK cycles
+  663 00050000         ;//       </h>
+  664 00050000 00000303 
+                       EMC_DYN_RASCAS1_Val
+                               EQU              0x00000303
+  665 00050000         
+  666 00050000         ;//     </e> End of Dynamic Setup for CS1 Area
+  667 00050000         
+  668 00050000         ;//     <e> Configure External Bus Behaviour for Dynamic
+                        CS2 Area
+  669 00050000 00000000 
+                       EMC_DYNCS2_SETUP
+                               EQU              0
+  670 00050000         
+  671 00050000         ;//       <h> Dynamic Memory Configuration Register (EMC
+                       DynamicConfig2)
+  672 00050000         ;//         <i> Defines the configuration information fo
+                       r the dynamic memory CS2
+  673 00050000         ;//         <o0.20> P: Write protect
+  674 00050000         ;//         <o0.19> B: Buffer enable
+  675 00050000         ;//         <o0.14> AM 14: External bus data width
+  676 00050000         ;//           <0=> 16 bit
+  677 00050000         ;//           <1=> 32 bit
+  678 00050000         ;//         <o0.12> AM 12: External bus memory type
+  679 00050000         ;//           <0=> High-performance
+  680 00050000         ;//           <1=> Low-power SDRAM
+  681 00050000         ;//         <o0.7..11> AM 11..7: External bus address ma
+                       pping (Row, Bank, Column)
+  682 00050000         ;//           <0x00=> 16 Mb = 2MB (2Mx8), 2 banks, row l
+                       ength = 11, column length = 9
+  683 00050000         ;//           <0x01=> 16 Mb = 2MB (1Mx16), 2 banks, row 
+                       length = 11, column length = 8
+  684 00050000         ;//           <0x04=> 64 Mb = 8MB (8Mx8), 4 banks, row l
+                       ength = 12, column length = 9
+  685 00050000         ;//           <0x05=> 64 Mb = 8MB (4Mx16), 4 banks, row 
+                       length = 12, column length = 8
+  686 00050000         ;//           <0x08=> 128 Mb = 16MB (16Mx8), 4 banks, ro
+                       w length = 12, column length = 10
+  687 00050000         ;//           <0x09=> 128 Mb = 16MB (8Mx16), 4 banks, ro
+                       w length = 12, column length = 9
+  688 00050000         ;//           <0x0C=> 256 Mb = 32MB (32Mx8), 4 banks, ro
+                       w length = 13, column length = 10
+  689 00050000         ;//           <0x0D=> 256 Mb = 32MB (16Mx16), 4 banks, r
+                       ow length = 13, column length = 9
+  690 00050000         ;//           <0x10=> 512 Mb = 64MB (64Mx8), 4 banks, ro
+                       w length = 13, column length = 11
+  691 00050000         ;//           <0x11=> 512 Mb = 64MB (32Mx16), 4 banks, r
+                       ow length = 13, column length = 10
+  692 00050000         ;//         <o0.3..4> MD: Memory device
+  693 00050000         ;//           <0=> SDRAM
+  694 00050000         ;//           <1=> Low-power SDRAM
+  695 00050000         ;//           <2=> Micron SyncFlash
+  696 00050000         ;//       </h>
+  697 00050000 00000000 
+
+
+
+ARM Macro Assembler    Page 22 
+
+
+                       EMC_DYN_CFG2_Val
+                               EQU              0x00000000
+  698 00050000         
+  699 00050000         ;//       <h> Dynamic Memory RAS & CAS Delay register (E
+                       MCDynamicRASCAS2)
+  700 00050000         ;//         <i> Controls the RAS and CAS latencies for t
+                       he dynamic memory CS2
+  701 00050000         ;//         <o0.8..9> CAS: CAS latency
+  702 00050000         ;//           <1=> One CCLK cycle
+  703 00050000         ;//           <2=> Two CCLK cycles
+  704 00050000         ;//           <3=> Three CCLK cycles
+  705 00050000         ;//         <o0.0..1> RAS: RAS latency (active to read/w
+                       rite delay)
+  706 00050000         ;//           <1=> One CCLK cycle
+  707 00050000         ;//           <2=> Two CCLK cycles
+  708 00050000         ;//           <3=> Three CCLK cycles
+  709 00050000         ;//       </h>
+  710 00050000 00000303 
+                       EMC_DYN_RASCAS2_Val
+                               EQU              0x00000303
+  711 00050000         
+  712 00050000         ;//     </e> End of Dynamic Setup for CS2 Area
+  713 00050000         
+  714 00050000         ;//     <e> Configure External Bus Behaviour for Dynamic
+                        CS3 Area
+  715 00050000 00000000 
+                       EMC_DYNCS3_SETUP
+                               EQU              0
+  716 00050000         
+  717 00050000         ;//       <h> Dynamic Memory Configuration Register (EMC
+                       DynamicConfig3)
+  718 00050000         ;//         <i> Defines the configuration information fo
+                       r the dynamic memory CS3
+  719 00050000         ;//         <o0.20> P: Write protect
+  720 00050000         ;//         <o0.19> B: Buffer enable
+  721 00050000         ;//         <o0.14> AM 14: External bus data width
+  722 00050000         ;//           <0=> 16 bit
+  723 00050000         ;//           <1=> 32 bit
+  724 00050000         ;//         <o0.12> AM 12: External bus memory type
+  725 00050000         ;//           <0=> High-performance
+  726 00050000         ;//           <1=> Low-power SDRAM
+  727 00050000         ;//         <o0.7..11> AM 11..7: External bus address ma
+                       pping (Row, Bank, Column)
+  728 00050000         ;//           <0x00=> 16 Mb = 2MB (2Mx8), 2 banks, row l
+                       ength = 11, column length = 9
+  729 00050000         ;//           <0x01=> 16 Mb = 2MB (1Mx16), 2 banks, row 
+                       length = 11, column length = 8
+  730 00050000         ;//           <0x04=> 64 Mb = 8MB (8Mx8), 4 banks, row l
+                       ength = 12, column length = 9
+  731 00050000         ;//           <0x05=> 64 Mb = 8MB (4Mx16), 4 banks, row 
+                       length = 12, column length = 8
+  732 00050000         ;//           <0x08=> 128 Mb = 16MB (16Mx8), 4 banks, ro
+                       w length = 12, column length = 10
+  733 00050000         ;//           <0x09=> 128 Mb = 16MB (8Mx16), 4 banks, ro
+                       w length = 12, column length = 9
+  734 00050000         ;//           <0x0C=> 256 Mb = 32MB (32Mx8), 4 banks, ro
+                       w length = 13, column length = 10
+  735 00050000         ;//           <0x0D=> 256 Mb = 32MB (16Mx16), 4 banks, r
+                       ow length = 13, column length = 9
+
+
+
+ARM Macro Assembler    Page 23 
+
+
+  736 00050000         ;//           <0x10=> 512 Mb = 64MB (64Mx8), 4 banks, ro
+                       w length = 13, column length = 11
+  737 00050000         ;//           <0x11=> 512 Mb = 64MB (32Mx16), 4 banks, r
+                       ow length = 13, column length = 10
+  738 00050000         ;//         <o0.3..4> MD: Memory device
+  739 00050000         ;//           <0=> SDRAM
+  740 00050000         ;//           <1=> Low-power SDRAM
+  741 00050000         ;//           <2=> Micron SyncFlash
+  742 00050000         ;//       </h>
+  743 00050000 00000000 
+                       EMC_DYN_CFG3_Val
+                               EQU              0x00000000
+  744 00050000         
+  745 00050000         ;//       <h> Dynamic Memory RAS & CAS Delay register (E
+                       MCDynamicRASCAS3)
+  746 00050000         ;//         <i> Controls the RAS and CAS latencies for t
+                       he dynamic memory CS3
+  747 00050000         ;//         <o0.8..9> CAS: CAS latency
+  748 00050000         ;//           <1=> One CCLK cycle
+  749 00050000         ;//           <2=> Two CCLK cycles
+  750 00050000         ;//           <3=> Three CCLK cycles
+  751 00050000         ;//         <o0.0..1> RAS: RAS latency (active to read/w
+                       rite delay)
+  752 00050000         ;//           <1=> One CCLK cycle
+  753 00050000         ;//           <2=> Two CCLK cycles
+  754 00050000         ;//           <3=> Three CCLK cycles
+  755 00050000         ;//       </h>
+  756 00050000 00000303 
+                       EMC_DYN_RASCAS3_Val
+                               EQU              0x00000303
+  757 00050000         
+  758 00050000         ;//     </e> End of Dynamic Setup for CS3 Area
+  759 00050000         
+  760 00050000         ;//   </e> End of Dynamic Setup
+  761 00050000         
+  762 00050000         ;//       Static Memory Interface Setup ----------------
+                       ------------------------
+  763 00050000         ;//   <e> Static Memory Interface Setup
+  764 00050000 00000001 
+                       EMC_STATIC_SETUP
+                               EQU              1
+  765 00050000         
+  766 00050000         ;//         Configure External Bus Behaviour for Static 
+                       CS0 Area ---------------
+  767 00050000         ;//     <e> Configure External Bus Behaviour for Static 
+                       CS0 Area
+  768 00050000 00000001 
+                       EMC_STACS0_SETUP
+                               EQU              1
+  769 00050000         
+  770 00050000         ;//       <h> Static Memory Configuration Register (EMCS
+                       taticConfig0)
+  771 00050000         ;//         <i> Defines the configuration information fo
+                       r the static memory CS0
+  772 00050000         ;//         <o0.20> WP: Write protect
+  773 00050000         ;//         <o0.19> B: Buffer enable
+  774 00050000         ;//         <o0.8> EW: Extended wait enable
+  775 00050000         ;//         <o0.7> PB: Byte lane state
+  776 00050000         ;//           <0=> For reads BLSn are HIGH, for writes B
+
+
+
+ARM Macro Assembler    Page 24 
+
+
+                       LSn are LOW
+  777 00050000         ;//           <1=> For reads BLSn are LOW, for writes BL
+                       Sn are LOW
+  778 00050000         ;//         <o0.6> PC: Chip select polarity
+  779 00050000         ;//           <0=> Active LOW chip select
+  780 00050000         ;//           <1=> Active HIGH chip select
+  781 00050000         ;//         <o0.3> PM: Page mode enable
+  782 00050000         ;//         <o0.0..1> MW: Memory width
+  783 00050000         ;//           <0=> 8 bit
+  784 00050000         ;//           <1=> 16 bit
+  785 00050000         ;//           <2=> 32 bit
+  786 00050000         ;//       </h>
+  787 00050000 00000081 
+                       EMC_STA_CFG0_Val
+                               EQU              0x00000081
+  788 00050000         
+  789 00050000         ;//       <h> Static Memory Write Enable Delay Register 
+                       (EMCStaticWaitWen0)
+  790 00050000         ;//         <i> Selects the delay from CS0 to write enab
+                       le
+  791 00050000         ;//         <o.0..3> WAITWEN: Wait write enable <1-16> <
+                       #-1>
+  792 00050000         ;//           <i> The delay is in CCLK cycles
+  793 00050000         ;//       </h>
+  794 00050000 00000004 
+                       EMC_STA_WWEN0_Val
+                               EQU              0x00000004
+  795 00050000         
+  796 00050000         ;//       <h> Static Memory Output Enable Delay register
+                        (EMCStaticWaitOen0)
+  797 00050000         ;//         <i> Selects the delay from CS0 or address ch
+                       ange, whichever is later, to output enable
+  798 00050000         ;//         <o.0..3> WAITOEN: Wait output enable <0-15>
+  799 00050000         ;//           <i> The delay is in CCLK cycles
+  800 00050000         ;//       </h>
+  801 00050000 00000004 
+                       EMC_STA_WOEN0_Val
+                               EQU              0x00000004
+  802 00050000         
+  803 00050000         ;//       <h> Static Memory Read Delay Register (EMCStat
+                       icWaitRd0)
+  804 00050000         ;//         <i> Selects the delay from CS0 to a read acc
+                       ess
+  805 00050000         ;//         <o.0..4> WAITRD: Non-page mode read wait sta
+                       tes or asynchronous page mode read first access wait sta
+                       tes <1-32> <#-1>
+  806 00050000         ;//           <i> The delay is in CCLK cycles
+  807 00050000         ;//       </h>
+  808 00050000 00000009 
+                       EMC_STA_WRD0_Val
+                               EQU              0x00000009
+  809 00050000         
+  810 00050000         ;//       <h> Static Memory Page Mode Read Delay Registe
+                       r (EMCStaticWaitPage0)
+  811 00050000         ;//         <i> Selects the delay for asynchronous page 
+                       mode sequential accesses for CS0
+  812 00050000         ;//         <o.0..4> WAITPAGE: Asynchronous page mode re
+                       ad after the first read wait states <1-32> <#-1>
+  813 00050000         ;//           <i> The delay is in CCLK cycles
+
+
+
+ARM Macro Assembler    Page 25 
+
+
+  814 00050000         ;//       </h>
+  815 00050000 00000000 
+                       EMC_STA_WPAGE0_Val
+                               EQU              0x00000000
+  816 00050000         
+  817 00050000         ;//       <h> Static Memory Write Delay Register (EMCSta
+                       ticWaitWr0)
+  818 00050000         ;//         <i> Selects the delay from CS0 to a write ac
+                       cess
+  819 00050000         ;//         <o.0..4> WAITWR: Write wait states <2-33> <#
+                       -2>
+  820 00050000         ;//           <i> The delay is in CCLK cycles
+  821 00050000         ;//       </h>
+  822 00050000 00000000 
+                       EMC_STA_WWR0_Val
+                               EQU              0x00000000
+  823 00050000         
+  824 00050000         ;//       <h> Static Memory Turn Round Delay Register (E
+                       MCStaticWaitTurn0)
+  825 00050000         ;//         <i> Selects the number of bus turnaround cyc
+                       les for CS0
+  826 00050000         ;//         <o.0..4> WAITTURN: Bus turnaround cycles <1-
+                       16> <#-1>
+  827 00050000         ;//           <i> The delay is in CCLK cycles
+  828 00050000         ;//       </h>
+  829 00050000 00000000 
+                       EMC_STA_WTURN0_Val
+                               EQU              0x00000000
+  830 00050000         
+  831 00050000         ;//     </e> End of Static Setup for Static CS0 Area
+  832 00050000         
+  833 00050000         ;//         Configure External Bus Behaviour for Static 
+                       CS1 Area ---------------
+  834 00050000         ;//     <e> Configure External Bus Behaviour for Static 
+                       CS1 Area
+  835 00050000 00000001 
+                       EMC_STACS1_SETUP
+                               EQU              1
+  836 00050000         
+  837 00050000         ;//       <h> Static Memory Configuration Register (EMCS
+                       taticConfig1)
+  838 00050000         ;//         <i> Defines the configuration information fo
+                       r the static memory CS1
+  839 00050000         ;//         <o0.20> WP: Write protect
+  840 00050000         ;//         <o0.19> B: Buffer enable
+  841 00050000         ;//         <o0.8> EW: Extended wait enable
+  842 00050000         ;//         <o0.7> PB: Byte lane state
+  843 00050000         ;//           <0=> For reads BLSn are HIGH, for writes B
+                       LSn are LOW
+  844 00050000         ;//           <1=> For reads BLSn are LOW, for writes BL
+                       Sn are LOW
+  845 00050000         ;//         <o0.6> PC: Chip select polarity
+  846 00050000         ;//           <0=> Active LOW chip select
+  847 00050000         ;//           <1=> Active HIGH chip select
+  848 00050000         ;//         <o0.3> PM: Page mode enable
+  849 00050000         ;//         <o0.0..1> MW: Memory width
+  850 00050000         ;//           <0=> 8 bit
+  851 00050000         ;//           <1=> 16 bit
+  852 00050000         ;//           <2=> 32 bit
+
+
+
+ARM Macro Assembler    Page 26 
+
+
+  853 00050000         ;//       </h>
+  854 00050000 00000080 
+                       EMC_STA_CFG1_Val
+                               EQU              0x00000080
+  855 00050000         
+  856 00050000         ;//       <h> Static Memory Write Enable Delay Register 
+                       (EMCStaticWaitWen1)
+  857 00050000         ;//         <i> Selects the delay from CS1 to write enab
+                       le
+  858 00050000         ;//         <o.0..3> WAITWEN: Wait write enable <1-16> <
+                       #-1>
+  859 00050000         ;//           <i> The delay is in CCLK cycles
+  860 00050000         ;//       </h>
+  861 00050000 00000000 
+                       EMC_STA_WWEN1_Val
+                               EQU              0x00000000
+  862 00050000         
+  863 00050000         ;//       <h> Static Memory Output Enable Delay register
+                        (EMCStaticWaitOen1)
+  864 00050000         ;//         <i> Selects the delay from CS1 or address ch
+                       ange, whichever is later, to output enable
+  865 00050000         ;//         <o.0..3> WAITOEN: Wait output enable <0-15>
+  866 00050000         ;//           <i> The delay is in CCLK cycles
+  867 00050000         ;//       </h>
+  868 00050000 00000000 
+                       EMC_STA_WOEN1_Val
+                               EQU              0x00000000
+  869 00050000         
+  870 00050000         ;//       <h> Static Memory Read Delay Register (EMCStat
+                       icWaitRd1)
+  871 00050000         ;//         <i> Selects the delay from CS1 to a read acc
+                       ess
+  872 00050000         ;//         <o.0..4> WAITRD: Non-page mode read wait sta
+                       tes or asynchronous page mode read first access wait sta
+                       tes <1-32> <#-1>
+  873 00050000         ;//           <i> The delay is in CCLK cycles
+  874 00050000         ;//       </h>
+  875 00050000 00000008 
+                       EMC_STA_WRD1_Val
+                               EQU              0x00000008  ;0x0000001F
+  876 00050000         
+  877 00050000         ;//       <h> Static Memory Page Mode Read Delay Registe
+                       r (EMCStaticWaitPage0)
+  878 00050000         ;//         <i> Selects the delay for asynchronous page 
+                       mode sequential accesses for CS1
+  879 00050000         ;//         <o.0..4> WAITPAGE: Asynchronous page mode re
+                       ad after the first read wait states <1-32> <#-1>
+  880 00050000         ;//           <i> The delay is in CCLK cycles
+  881 00050000         ;//       </h>
+  882 00050000 0000001F 
+                       EMC_STA_WPAGE1_Val
+                               EQU              0x0000001F
+  883 00050000         
+  884 00050000         ;//       <h> Static Memory Write Delay Register (EMCSta
+                       ticWaitWr1)
+  885 00050000         ;//         <i> Selects the delay from CS1 to a write ac
+                       cess
+  886 00050000         ;//         <o.0..4> WAITWR: Write wait states <2-33> <#
+                       -2>
+
+
+
+ARM Macro Assembler    Page 27 
+
+
+  887 00050000         ;//           <i> The delay is in CCLK cycles
+  888 00050000         ;//       </h>
+  889 00050000 0000001F 
+                       EMC_STA_WWR1_Val
+                               EQU              0x0000001F
+  890 00050000         
+  891 00050000         ;//       <h> Static Memory Turn Round Delay Register (E
+                       MCStaticWaitTurn1)
+  892 00050000         ;//         <i> Selects the number of bus turnaround cyc
+                       les for CS1
+  893 00050000         ;//         <o.0..4> WAITTURN: Bus turnaround cycles <1-
+                       16> <#-1>
+  894 00050000         ;//           <i> The delay is in CCLK cycles
+  895 00050000         ;//       </h>
+  896 00050000 0000000F 
+                       EMC_STA_WTURN1_Val
+                               EQU              0x0000000F
+  897 00050000         
+  898 00050000         ;//     </e> End of Static Setup for Static CS1 Area
+  899 00050000         
+  900 00050000         ;//         Configure External Bus Behaviour for Static 
+                       CS2 Area ---------------
+  901 00050000         ;//     <e> Configure External Bus Behaviour for Static 
+                       CS2 Area
+  902 00050000 00000000 
+                       EMC_STACS2_SETUP
+                               EQU              0
+  903 00050000         
+  904 00050000         ;//       <h> Static Memory Configuration Register (EMCS
+                       taticConfig2)
+  905 00050000         ;//         <i> Defines the configuration information fo
+                       r the static memory CS2
+  906 00050000         ;//         <o0.20> WP: Write protect
+  907 00050000         ;//         <o0.19> B: Buffer enable
+  908 00050000         ;//         <o0.8> EW: Extended wait enable
+  909 00050000         ;//         <o0.7> PB: Byte lane state
+  910 00050000         ;//           <0=> For reads BLSn are HIGH, for writes B
+                       LSn are LOW
+  911 00050000         ;//           <1=> For reads BLSn are LOW, for writes BL
+                       Sn are LOW
+  912 00050000         ;//         <o0.6> PC: Chip select polarity
+  913 00050000         ;//           <0=> Active LOW chip select
+  914 00050000         ;//           <1=> Active HIGH chip select
+  915 00050000         ;//         <o0.3> PM: Page mode enable
+  916 00050000         ;//         <o0.0..1> MW: Memory width
+  917 00050000         ;//           <0=> 8 bit
+  918 00050000         ;//           <1=> 16 bit
+  919 00050000         ;//           <2=> 32 bit
+  920 00050000         ;//       </h>
+  921 00050000 00000000 
+                       EMC_STA_CFG2_Val
+                               EQU              0x00000000
+  922 00050000         
+  923 00050000         ;//       <h> Static Memory Write Enable Delay Register 
+                       (EMCStaticWaitWen2)
+  924 00050000         ;//         <i> Selects the delay from CS2 to write enab
+                       le
+  925 00050000         ;//         <o.0..3> WAITWEN: Wait write enable <1-16> <
+                       #-1>
+
+
+
+ARM Macro Assembler    Page 28 
+
+
+  926 00050000         ;//           <i> The delay is in CCLK cycles
+  927 00050000         ;//       </h>
+  928 00050000 00000000 
+                       EMC_STA_WWEN2_Val
+                               EQU              0x00000000
+  929 00050000         
+  930 00050000         ;//       <h> Static Memory Output Enable Delay register
+                        (EMCStaticWaitOen2)
+  931 00050000         ;//         <i> Selects the delay from CS2 or address ch
+                       ange, whichever is later, to output enable
+  932 00050000         ;//         <o.0..3> WAITOEN: Wait output enable <0-15>
+  933 00050000         ;//           <i> The delay is in CCLK cycles
+  934 00050000         ;//       </h>
+  935 00050000 00000000 
+                       EMC_STA_WOEN2_Val
+                               EQU              0x00000000
+  936 00050000         
+  937 00050000         ;//       <h> Static Memory Read Delay Register (EMCStat
+                       icWaitRd2)
+  938 00050000         ;//         <i> Selects the delay from CS2 to a read acc
+                       ess
+  939 00050000         ;//         <o.0..4> WAITRD: Non-page mode read wait sta
+                       tes or asynchronous page mode read first access wait sta
+                       tes <1-32> <#-1>
+  940 00050000         ;//           <i> The delay is in CCLK cycles
+  941 00050000         ;//       </h>
+  942 00050000 0000001F 
+                       EMC_STA_WRD2_Val
+                               EQU              0x0000001F
+  943 00050000         
+  944 00050000         ;//       <h> Static Memory Page Mode Read Delay Registe
+                       r (EMCStaticWaitPage2)
+  945 00050000         ;//         <i> Selects the delay for asynchronous page 
+                       mode sequential accesses for CS2
+  946 00050000         ;//         <o.0..4> WAITPAGE: Asynchronous page mode re
+                       ad after the first read wait states <1-32> <#-1>
+  947 00050000         ;//           <i> The delay is in CCLK cycles
+  948 00050000         ;//       </h>
+  949 00050000 0000001F 
+                       EMC_STA_WPAGE2_Val
+                               EQU              0x0000001F
+  950 00050000         
+  951 00050000         ;//       <h> Static Memory Write Delay Register (EMCSta
+                       ticWaitWr2)
+  952 00050000         ;//         <i> Selects the delay from CS2 to a write ac
+                       cess
+  953 00050000         ;//         <o.0..4> WAITWR: Write wait states <2-33> <#
+                       -2>
+  954 00050000         ;//           <i> The delay is in CCLK cycles
+  955 00050000         ;//       </h>
+  956 00050000 0000001F 
+                       EMC_STA_WWR2_Val
+                               EQU              0x0000001F
+  957 00050000         
+  958 00050000         ;//       <h> Static Memory Turn Round Delay Register (E
+                       MCStaticWaitTurn2)
+  959 00050000         ;//         <i> Selects the number of bus turnaround cyc
+                       les for CS2
+  960 00050000         ;//         <o.0..4> WAITTURN: Bus turnaround cycles <1-
+
+
+
+ARM Macro Assembler    Page 29 
+
+
+                       16> <#-1>
+  961 00050000         ;//           <i> The delay is in CCLK cycles
+  962 00050000         ;//       </h>
+  963 00050000 0000000F 
+                       EMC_STA_WTURN2_Val
+                               EQU              0x0000000F
+  964 00050000         
+  965 00050000         ;//     </e> End of Static Setup for Static CS2 Area
+  966 00050000         
+  967 00050000         ;//         Configure External Bus Behaviour for Static 
+                       CS3 Area ---------------
+  968 00050000         ;//     <e> Configure External Bus Behaviour for Static 
+                       CS3 Area
+  969 00050000 00000000 
+                       EMC_STACS3_SETUP
+                               EQU              0
+  970 00050000         
+  971 00050000         ;//       <h> Static Memory Configuration Register (EMCS
+                       taticConfig3)
+  972 00050000         ;//         <i> Defines the configuration information fo
+                       r the static memory CS3
+  973 00050000         ;//         <o0.20> WP: Write protect
+  974 00050000         ;//         <o0.19> B: Buffer enable
+  975 00050000         ;//         <o0.8> EW: Extended wait enable
+  976 00050000         ;//         <o0.7> PB: Byte lane state
+  977 00050000         ;//           <0=> For reads BLSn are HIGH, for writes B
+                       LSn are LOW
+  978 00050000         ;//           <1=> For reads BLSn are LOW, for writes BL
+                       Sn are LOW
+  979 00050000         ;//         <o0.6> PC: Chip select polarity
+  980 00050000         ;//           <0=> Active LOW chip select
+  981 00050000         ;//           <1=> Active HIGH chip select
+  982 00050000         ;//         <o0.3> PM: Page mode enable
+  983 00050000         ;//         <o0.0..1> MW: Memory width
+  984 00050000         ;//           <0=> 8 bit
+  985 00050000         ;//           <1=> 16 bit
+  986 00050000         ;//           <2=> 32 bit
+  987 00050000         ;//       </h>
+  988 00050000 00000000 
+                       EMC_STA_CFG3_Val
+                               EQU              0x00000000
+  989 00050000         
+  990 00050000         ;//       <h> Static Memory Write Enable Delay Register 
+                       (EMCStaticWaitWen3)
+  991 00050000         ;//         <i> Selects the delay from CS3 to write enab
+                       le
+  992 00050000         ;//         <o.0..3> WAITWEN: Wait write enable <1-16> <
+                       #-1>
+  993 00050000         ;//           <i> The delay is in CCLK cycles
+  994 00050000         ;//       </h>
+  995 00050000 00000000 
+                       EMC_STA_WWEN3_Val
+                               EQU              0x00000000
+  996 00050000         
+  997 00050000         ;//       <h> Static Memory Output Enable Delay register
+                        (EMCStaticWaitOen3)
+  998 00050000         ;//         <i> Selects the delay from CS3 or address ch
+                       ange, whichever is later, to output enable
+  999 00050000         ;//         <o.0..3> WAITOEN: Wait output enable <0-15>
+
+
+
+ARM Macro Assembler    Page 30 
+
+
+ 1000 00050000         ;//           <i> The delay is in CCLK cycles
+ 1001 00050000         ;//       </h>
+ 1002 00050000 00000000 
+                       EMC_STA_WOEN3_Val
+                               EQU              0x00000000
+ 1003 00050000         
+ 1004 00050000         ;//       <h> Static Memory Read Delay Register (EMCStat
+                       icWaitRd3)
+ 1005 00050000         ;//         <i> Selects the delay from CS3 to a read acc
+                       ess
+ 1006 00050000         ;//         <o.0..4> WAITRD: Non-page mode read wait sta
+                       tes or asynchronous page mode read first access wait sta
+                       tes <1-32> <#-1>
+ 1007 00050000         ;//           <i> The delay is in CCLK cycles
+ 1008 00050000         ;//       </h>
+ 1009 00050000 0000001F 
+                       EMC_STA_WRD3_Val
+                               EQU              0x0000001F
+ 1010 00050000         
+ 1011 00050000         ;//       <h> Static Memory Page Mode Read Delay Registe
+                       r (EMCStaticWaitPage3)
+ 1012 00050000         ;//         <i> Selects the delay for asynchronous page 
+                       mode sequential accesses for CS3
+ 1013 00050000         ;//         <o.0..4> WAITPAGE: Asynchronous page mode re
+                       ad after the first read wait states <1-32> <#-1>
+ 1014 00050000         ;//           <i> The delay is in CCLK cycles
+ 1015 00050000         ;//       </h>
+ 1016 00050000 0000001F 
+                       EMC_STA_WPAGE3_Val
+                               EQU              0x0000001F
+ 1017 00050000         
+ 1018 00050000         ;//       <h> Static Memory Write Delay Register (EMCSta
+                       ticWaitWr3)
+ 1019 00050000         ;//         <i> Selects the delay from CS3 to a write ac
+                       cess
+ 1020 00050000         ;//         <o.0..4> WAITWR: Write wait states <2-33> <#
+                       -2>
+ 1021 00050000         ;//           <i> The delay is in CCLK cycles
+ 1022 00050000         ;//       </h>
+ 1023 00050000 0000001F 
+                       EMC_STA_WWR3_Val
+                               EQU              0x0000001F
+ 1024 00050000         
+ 1025 00050000         ;//       <h> Static Memory Turn Round Delay Register (E
+                       MCStaticWaitTurn3)
+ 1026 00050000         ;//         <i> Selects the number of bus turnaround cyc
+                       les for CS3
+ 1027 00050000         ;//         <o.0..4> WAITTURN: Bus turnaround cycles <1-
+                       16> <#-1>
+ 1028 00050000         ;//           <i> The delay is in CCLK cycles
+ 1029 00050000         ;//       </h>
+ 1030 00050000 0000000F 
+                       EMC_STA_WTURN3_Val
+                               EQU              0x0000000F
+ 1031 00050000         
+ 1032 00050000         ;//     </e> End of Static Setup for Static CS3 Area
+ 1033 00050000         
+ 1034 00050000         ;//     <h> Static Memory Extended Wait Register (EMCSta
+                       ticExtendedWait)
+
+
+
+ARM Macro Assembler    Page 31 
+
+
+ 1035 00050000         ;//       <i> Time long static memory read and write tra
+                       nsfers
+ 1036 00050000         ;//       <o.0..9> EXTENDEDWAIT: Extended wait time out 
+                       <0-1023>
+ 1037 00050000         ;//         <i> The delay is in (16 * CCLK) cycles
+ 1038 00050000         ;//     </h>
+ 1039 00050000 00000000 
+                       EMC_STA_EXT_W_Val
+                               EQU              0x00000000
+ 1040 00050000         
+ 1041 00050000         ;//   </e> End of Static Setup
+ 1042 00050000         
+ 1043 00050000         ;// </e> End of EMC Setup
+ 1044 00050000         
+ 1045 00050000         
+ 1046 00050000                 PRESERVE8
+ 1047 00050000         
+ 1048 00050000         ; Area Definition and Entry Point
+ 1049 00050000         ;  Startup Code must be linked first at Address at which
+                        it expects to run.
+ 1050 00050000         
+ 1051 00050000                 AREA             RESET, CODE, READONLY
+ 1052 00000000                 ARM
+ 1053 00000000         
+ 1054 00000000         
+ 1055 00000000         ; Exception Vectors
+ 1056 00000000         ;  Mapped to Address 0.
+ 1057 00000000         ;  Absolute addressing mode must be used.
+ 1058 00000000         ;  Dummy Handlers are implemented as infinite loops whic
+                       h can be modified.
+ 1059 00000000         
+ 1060 00000000 E59FF018 
+                       Vectors LDR              PC, Reset_Addr
+ 1061 00000004 E59FF018        LDR              PC, Undef_Addr
+ 1062 00000008 E59FF018        LDR              PC, SWI_Addr
+ 1063 0000000C E59FF018        LDR              PC, PAbt_Addr
+ 1064 00000010 E59FF018        LDR              PC, DAbt_Addr
+ 1065 00000014 E1A00000        NOP                          ; Reserved Vector 
+ 1066 00000018         ;               LDR     PC, IRQ_Addr
+ 1067 00000018 E51FF120        LDR              PC, [PC, #-0x0120] ; Vector fro
+                                                            m VicVectAddr
+ 1068 0000001C E59FF018        LDR              PC, FIQ_Addr
+ 1069 00000020         
+ 1070 00000020 00000000 
+                       Reset_Addr
+                               DCD              Reset_Handler
+ 1071 00000024 00000000 
+                       Undef_Addr
+                               DCD              Undef_Handler
+ 1072 00000028 00000000 
+                       SWI_Addr
+                               DCD              SWI_Handler
+ 1073 0000002C 00000000 
+                       PAbt_Addr
+                               DCD              PAbt_Handler
+ 1074 00000030 00000000 
+                       DAbt_Addr
+                               DCD              DAbt_Handler
+ 1075 00000034 00000000        DCD              0           ; Reserved Address 
+
+
+
+ARM Macro Assembler    Page 32 
+
+
+                                                            
+ 1076 00000038 00000000 
+                       IRQ_Addr
+                               DCD              IRQ_Handler
+ 1077 0000003C 00000000 
+                       FIQ_Addr
+                               DCD              FIQ_Handler
+ 1078 00000040         
+ 1079 00000040 EAFFFFFE 
+                       Undef_Handler
+                               B                Undef_Handler
+ 1080 00000044         ;SWI_Handler     B       SWI_Handler
+ 1081 00000044 EAFFFFFE 
+                       PAbt_Handler
+                               B                PAbt_Handler
+ 1082 00000048 EAFFFFFE 
+                       DAbt_Handler
+                               B                DAbt_Handler
+ 1083 0000004C EAFFFFFE 
+                       IRQ_Handler
+                               B                IRQ_Handler
+ 1084 00000050 EAFFFFFE 
+                       FIQ_Handler
+                               B                FIQ_Handler
+ 1085 00000054         
+ 1086 00000054                 IMPORT           SWI_Handler ;SWI.s
+ 1087 00000054         ; Reset Handler
+ 1088 00000054         
+ 1089 00000054                 EXPORT           Reset_Handler
+ 1090 00000054         Reset_Handler
+ 1091 00000054         
+ 1092 00000054         
+ 1093 00000054         ; Clock Setup ------------------------------------------
+                       ------------------------
+ 1094 00000054         
+ 1095 00000054                 IF               (:LNOT:(:DEF:NO_CLOCK_SETUP)):L
+AND:(CLOCK_SETUP != 0)
+ 1096 00000054 E59F0314        LDR              R0, =SCB_BASE
+ 1097 00000058 E3A010AA        MOV              R1, #0xAA
+ 1098 0000005C E3A02055        MOV              R2, #0x55
+ 1099 00000060         
+ 1100 00000060         ;  Configure and Enable PLL
+ 1101 00000060 E3A03020        LDR              R3, =SCS_Val ; Enable main osci
+                                                            llator
+ 1102 00000064 E58031A0        STR              R3, [R0, #SCS_OFS]
+ 1103 00000068         
+ 1104 00000068                 IF               (SCS_Val:AND:OSCEN) != 0
+ 1105 00000068 E59031A0 
+                       OSC_Loop
+                               LDR              R3, [R0, #SCS_OFS] ; Wait for m
+                                                            ain osc stabilize
+ 1106 0000006C E2133040        ANDS             R3, R3, #OSCSTAT
+ 1107 00000070 0AFFFFFC        BEQ              OSC_Loop
+ 1108 00000074                 ENDIF
+ 1109 00000074         
+ 1110 00000074 E3A03001        LDR              R3, =CLKSRCSEL_Val ; Select PLL
+                                                             source clock
+ 1111 00000078 E580310C        STR              R3, [R0, #CLKSRCSEL_OFS]
+ 1112 0000007C E3A0300B        LDR              R3, =PLLCFG_Val
+
+
+
+ARM Macro Assembler    Page 33 
+
+
+ 1113 00000080 E5803084        STR              R3, [R0, #PLLCFG_OFS]
+ 1114 00000084 E580108C        STR              R1, [R0, #PLLFEED_OFS]
+ 1115 00000088 E580208C        STR              R2, [R0, #PLLFEED_OFS]
+ 1116 0000008C E3A03001        MOV              R3, #PLLCON_PLLE
+ 1117 00000090 E5803080        STR              R3, [R0, #PLLCON_OFS]
+ 1118 00000094 E580108C        STR              R1, [R0, #PLLFEED_OFS]
+ 1119 00000098 E580208C        STR              R2, [R0, #PLLFEED_OFS]
+ 1120 0000009C         
+ 1121 0000009C                 IF               (CLKSRCSEL_Val:AND:3) != 2
+ 1122 0000009C         ;  Wait until PLL Locked (if source is not RTC oscillato
+                       r)
+ 1123 0000009C E5903088 
+                       PLL_Loop
+                               LDR              R3, [R0, #PLLSTAT_OFS]
+ 1124 000000A0 E2133301        ANDS             R3, R3, #PLLSTAT_PLOCK
+ 1125 000000A4 0AFFFFFC        BEQ              PLL_Loop
+ 1126 000000A8                 ELSE
+ 1131                          ENDIF
+ 1132 000000A8         
+ 1133 000000A8 E5903088 
+                       M_N_Lock
+                               LDR              R3, [R0, #PLLSTAT_OFS]
+ 1134 000000AC E59F42C0        LDR              R4, =(PLLSTAT_M:OR:PLLSTAT_N)
+ 1135 000000B0 E0033004        AND              R3, R3, R4
+ 1136 000000B4 E3A0400B        LDR              R4, =PLLCFG_Val
+ 1137 000000B8 E0333004        EORS             R3, R3, R4
+ 1138 000000BC 1AFFFFF9        BNE              M_N_Lock
+ 1139 000000C0         
+ 1140 000000C0         ;  Setup CPU clock divider
+ 1141 000000C0 E3A03003        MOV              R3, #CCLKCFG_Val
+ 1142 000000C4 E5803104        STR              R3, [R0, #CCLKCFG_OFS]
+ 1143 000000C8         
+ 1144 000000C8         ;  Setup USB clock divider
+ 1145 000000C8 E3A03005        LDR              R3, =USBCLKCFG_Val
+ 1146 000000CC E5803108        STR              R3, [R0, #USBCLKCFG_OFS]
+ 1147 000000D0         
+ 1148 000000D0         ;  Setup Peripheral Clock
+ 1149 000000D0 E3A03D0A        LDR              R3, =PCLKSEL0_Val
+ 1150 000000D4 E58031A8        STR              R3, [R0, #PCLKSEL0_OFS]
+ 1151 000000D8 E3A03802        LDR              R3, =PCLKSEL1_Val
+ 1152 000000DC E58031AC        STR              R3, [R0, #PCLKSEL1_OFS]
+ 1153 000000E0         
+ 1154 000000E0         ;  Switch to PLL Clock
+ 1155 000000E0 E3A03003        MOV              R3, #(PLLCON_PLLE:OR:PLLCON_PLL
+C)
+ 1156 000000E4 E5803080        STR              R3, [R0, #PLLCON_OFS]
+ 1157 000000E8 E580108C        STR              R1, [R0, #PLLFEED_OFS]
+ 1158 000000EC E580208C        STR              R2, [R0, #PLLFEED_OFS]
+ 1159 000000F0                 ENDIF                        ; CLOCK_SETUP
+ 1160 000000F0         
+ 1161 000000F0         
+ 1162 000000F0         ; Setup Memory Accelerator Module ----------------------
+                       ------------------------
+ 1163 000000F0         
+ 1164 000000F0                 IF               MAM_SETUP != 0
+ 1165 000000F0 E59F0278        LDR              R0, =MAM_BASE
+ 1166 000000F4 E3A01004        MOV              R1, #MAMTIM_Val
+ 1167 000000F8 E5801004        STR              R1, [R0, #MAMTIM_OFS]
+ 1168 000000FC E3A01002        MOV              R1, #MAMCR_Val
+
+
+
+ARM Macro Assembler    Page 34 
+
+
+ 1169 00000100 E5801000        STR              R1, [R0, #MAMCR_OFS]
+ 1170 00000104                 ENDIF                        ; MAM_SETUP
+ 1171 00000104         
+ 1172 00000104         
+ 1173 00000104         ; Setup External Memory Controller ---------------------
+                       ------------------------
+ 1174 00000104         
+ 1175 00000104                 IF               (:LNOT:(:DEF:NO_EMC_SETUP)):LAN
+D:(EMC_SETUP != 0)
+ 1176 00000104 E59F026C        LDR              R0, =EMC_BASE
+ 1177 00000108 E59F1260        LDR              R1, =SCB_BASE
+ 1178 0000010C E59F2268        LDR              R2, =PCB_BASE
+ 1179 00000110         
+ 1180 00000110 E3A04B02        LDR              R4, =EMC_PCONP_Const 
+                                                            ; Enable EMC
+ 1181 00000114 E59130C4        LDR              R3, [R1, #PCONP_OFS]
+ 1182 00000118 E1844003        ORR              R4, R4, R3
+ 1183 0000011C E58140C4        STR              R4, [R1, #PCONP_OFS]
+ 1184 00000120         
+ 1185 00000120 E3A04001        LDR              R4, =EMC_CTRL_Val
+ 1186 00000124 E5804000        STR              R4, [R0, #EMC_CTRL_OFS]
+ 1187 00000128 E3A04000        LDR              R4, =EMC_CONFIG_Val
+ 1188 0000012C E5804008        STR              R4, [R0, #EMC_CONFIG_OFS]
+ 1189 00000130         
+ 1190 00000130         ;  Setup pin functions for External Bus functionality
+ 1191 00000130 E3A04000        LDR              R4, =PINSEL0_Val
+ 1192 00000134 E5824000        STR              R4, [R2, #PINSEL0_OFS]
+ 1193 00000138 E3A04000        LDR              R4, =PINSEL1_Val
+ 1194 0000013C E5824004        STR              R4, [R2, #PINSEL1_OFS]
+ 1195 00000140 E3A04000        LDR              R4, =PINSEL2_Val
+ 1196 00000144 E5824008        STR              R4, [R2, #PINSEL2_OFS]
+ 1197 00000148 E3A04000        LDR              R4, =PINSEL3_Val
+ 1198 0000014C E582400C        STR              R4, [R2, #PINSEL3_OFS]
+ 1199 00000150 E3A04000        LDR              R4, =PINSEL4_Val
+ 1200 00000154 E5824010        STR              R4, [R2, #PINSEL4_OFS]
+ 1201 00000158         
+ 1202 00000158 E59F4220        LDR              R4, =EMC_PINSEL5_Val
+ 1203 0000015C E5824014        STR              R4, [R2, #PINSEL5_OFS]
+ 1204 00000160 E59F421C        LDR              R4, =EMC_PINSEL6_Val
+ 1205 00000164 E5824018        STR              R4, [R2, #PINSEL6_OFS]
+ 1206 00000168 E59F4218        LDR              R4, =EMC_PINSEL7_Val
+ 1207 0000016C E582401C        STR              R4, [R2, #PINSEL7_OFS]
+ 1208 00000170 E59F420C        LDR              R4, =EMC_PINSEL8_Val
+ 1209 00000174 E5824020        STR              R4, [R2, #PINSEL8_OFS]
+ 1210 00000178 E59F420C        LDR              R4, =EMC_PINSEL9_Val
+ 1211 0000017C E5824024        STR              R4, [R2, #PINSEL9_OFS]
+ 1212 00000180 E3A04000        LDR              R4, =EMC_PINSEL10_Val
+ 1213 00000184 E5824028        STR              R4, [R2, #PINSEL10_OFS]
+ 1214 00000188         
+ 1215 00000188         ;  Setup Dynamic Memory Interface
+ 1216 00000188                 IF               (EMC_DYNAMIC_SETUP != 0)
+ 1217 00000188         
+ 1218 00000188 E3A04002        LDR              R4, =EMC_DYN_RP_Val
+ 1219 0000018C E5804030        STR              R4, [R0, #EMC_DYN_RP_OFS]
+ 1220 00000190 E3A04003        LDR              R4, =EMC_DYN_RAS_Val
+ 1221 00000194 E5804034        STR              R4, [R0, #EMC_DYN_RAS_OFS]
+ 1222 00000198 E3A04007        LDR              R4, =EMC_DYN_SREX_Val
+ 1223 0000019C E5804038        STR              R4, [R0, #EMC_DYN_SREX_OFS]
+ 1224 000001A0 E3A04002        LDR              R4, =EMC_DYN_APR_Val
+
+
+
+ARM Macro Assembler    Page 35 
+
+
+ 1225 000001A4 E580403C        STR              R4, [R0, #EMC_DYN_APR_OFS]
+ 1226 000001A8 E3A04005        LDR              R4, =EMC_DYN_DAL_Val
+ 1227 000001AC E5804040        STR              R4, [R0, #EMC_DYN_DAL_OFS]
+ 1228 000001B0 E3A04001        LDR              R4, =EMC_DYN_WR_Val
+ 1229 000001B4 E5804044        STR              R4, [R0, #EMC_DYN_WR_OFS]
+ 1230 000001B8 E3A04005        LDR              R4, =EMC_DYN_RC_Val
+ 1231 000001BC E5804048        STR              R4, [R0, #EMC_DYN_RC_OFS]
+ 1232 000001C0 E3A04005        LDR              R4, =EMC_DYN_RFC_Val
+ 1233 000001C4 E580404C        STR              R4, [R0, #EMC_DYN_RFC_OFS]
+ 1234 000001C8 E3A04007        LDR              R4, =EMC_DYN_XSR_Val
+ 1235 000001CC E5804050        STR              R4, [R0, #EMC_DYN_XSR_OFS]
+ 1236 000001D0 E3A04001        LDR              R4, =EMC_DYN_RRD_Val
+ 1237 000001D4 E5804054        STR              R4, [R0, #EMC_DYN_RRD_OFS]
+ 1238 000001D8 E3A04002        LDR              R4, =EMC_DYN_MRD_Val
+ 1239 000001DC E5804058        STR              R4, [R0, #EMC_DYN_MRD_OFS]
+ 1240 000001E0         
+ 1241 000001E0 E3A04001        LDR              R4, =EMC_DYN_RD_CFG_Val
+ 1242 000001E4 E5804028        STR              R4, [R0, #EMC_DYN_RD_CFG_OFS]
+ 1243 000001E8         
+ 1244 000001E8                 IF               (EMC_DYNCS0_SETUP != 0)
+ 1245 000001E8 E59F41A0        LDR              R4, =EMC_DYN_RASCAS0_Val
+ 1246 000001EC E5804104        STR              R4, [R0, #EMC_DYN_RASCAS0_OFS]
+ 1247 000001F0 E59F419C        LDR              R4, =EMC_DYN_CFG0_Val
+ 1248 000001F4 E3E05702        MVN              R5, #BUFEN_Const
+ 1249 000001F8 E0044005        AND              R4, R4, R5
+ 1250 000001FC E5804100        STR              R4, [R0, #EMC_DYN_CFG0_OFS]
+ 1251 00000200                 ENDIF
+ 1252 00000200                 IF               (EMC_DYNCS1_SETUP != 0)
+ 1259                          ENDIF
+ 1260 00000200                 IF               (EMC_DYNCS2_SETUP != 0)
+ 1267                          ENDIF
+ 1268 00000200                 IF               (EMC_DYNCS3_SETUP != 0)
+ 1275                          ENDIF
+ 1276 00000200         
+ 1277 00000200 E59F6190        LDR              R6, =1440000 ; Number of cycles
+                                                             to delay
+ 1278 00000204 E2566001 
+                       Wait_0  SUBS             R6, R6, #1  ; Delay ~100 ms pro
+                                                            c clk 57.6 MHz
+ 1279 00000208 1AFFFFFD        BNE              Wait_0      ; BNE (3 cyc) + SUB
+                                                            S (1 cyc) = 4 cyc
+ 1280 0000020C         
+ 1281 0000020C E59F4188        LDR              R4, =(NOP_CMD:OR:0x03) 
+                                                            ; Write NOP Command
+                                                            
+ 1282 00000210 E5804020        STR              R4, [R0, #EMC_DYN_CTRL_OFS]
+ 1283 00000214         
+ 1284 00000214 E59F6184        LDR              R6, =2880000 ; Number of cycles
+                                                             to delay
+ 1285 00000218 E2566001 
+                       Wait_1  SUBS             R6, R6, #1  ; Delay ~200 ms pro
+                                                            c clk 57.6 MHz
+ 1286 0000021C 1AFFFFFD        BNE              Wait_1
+ 1287 00000220         
+ 1288 00000220 E59F417C        LDR              R4, =(PALL_CMD:OR:0x03) ; Write
+                                                             Precharge All Comm
+                                                            and
+ 1289 00000224 E5804020        STR              R4, [R0, #EMC_DYN_CTRL_OFS]
+ 1290 00000228         
+
+
+
+ARM Macro Assembler    Page 36 
+
+
+ 1291 00000228 E3A04002        MOV              R4, #2
+ 1292 0000022C E5804024        STR              R4, [R0, #EMC_DYN_RFSH_OFS]
+ 1293 00000230         
+ 1294 00000230 E3A06040        MOV              R6, #64     ; Number of cycles 
+                                                            to delay
+ 1295 00000234 E2566001 
+                       Wait_2  SUBS             R6, R6, #1  ; Delay
+ 1296 00000238 1AFFFFFD        BNE              Wait_2
+ 1297 0000023C         
+ 1298 0000023C E3A0401C        LDR              R4, =EMC_DYN_RFSH_Val
+ 1299 00000240 E5804024        STR              R4, [R0, #EMC_DYN_RFSH_OFS]
+ 1300 00000244         
+ 1301 00000244 E3A04083        LDR              R4, =(MODE_CMD:OR:0x03) ; Write
+                                                             MODE Command
+ 1302 00000248 E5804020        STR              R4, [R0, #EMC_DYN_CTRL_OFS]
+ 1303 0000024C         
+ 1304 0000024C         ; Dummy read  (set SDRAM Mode register)
+ 1305 0000024C                 IF               (EMC_DYNCS0_SETUP != 0)
+ 1306 0000024C E3A0420A        LDR              R4, =DYN_MEM0_BASE
+ 1307 00000250 E3A05C03        LDR              R5, =(EMC_DYN_RASCAS0_Val:AND:0
+x00000300) 
+                                                            ; get CAS Latency
+ 1308 00000254 E1A05225        LSR              R5, #4      ; set CAS Latency  
+                                                              (Bit4..6)
+ 1309 00000258                 IF               ((EMC_DYN_CFG0_Val:AND:0x000040
+00) != 0)
+ 1313 00000258 E3855003        ORR              R5, R5, #0x03 ; set burst lengt
+                                                            h 8 (Bit0..2)
+ 1314 0000025C E1A05605        LSL              R5, #12
+ 1315 00000260                 ENDIF
+ 1316 00000260 E0844005        ADD              R4, R4, R5
+ 1317 00000264 E5944000        LDR              R4, [R4, #0]
+ 1318 00000268                 ENDIF
+ 1319 00000268                 IF               (EMC_DYNCS1_SETUP != 0)
+ 1332                          ENDIF
+ 1333 00000268                 IF               (EMC_DYNCS2_SETUP != 0)
+ 1346                          ENDIF
+ 1347 00000268                 IF               (EMC_DYNCS3_SETUP != 0)
+ 1360                          ENDIF
+ 1361 00000268         
+ 1362 00000268 E3A04000        LDR              R4, =NORMAL_CMD ; Write NORMAL 
+                                                            Command
+ 1363 0000026C E5804020        STR              R4, [R0, #EMC_DYN_CTRL_OFS]
+ 1364 00000270         
+ 1365 00000270         ; Enable buffer if requested by settings
+ 1366 00000270                 IF               (EMC_DYNCS0_SETUP != 0):LAND:((
+EMC_DYN_CFG0_Val:AND:BUFEN_Const) != 0)
+ 1367 00000270 E59F411C        LDR              R4, =EMC_DYN_CFG0_Val
+ 1368 00000274 E5804100        STR              R4, [R0, #EMC_DYN_CFG0_OFS]
+ 1369 00000278                 ENDIF
+ 1370 00000278                 IF               (EMC_DYNCS1_SETUP != 0):LAND:((
+EMC_DYN_CFG1_Val:AND:BUFEN_Const) != 0)
+ 1373                          ENDIF
+ 1374 00000278                 IF               (EMC_DYNCS2_SETUP != 0):LAND:((
+EMC_DYN_CFG2_Val:AND:BUFEN_Const) != 0)
+ 1377                          ENDIF
+ 1378 00000278                 IF               (EMC_DYNCS3_SETUP != 0):LAND:((
+EMC_DYN_CFG3_Val:AND:BUFEN_Const) != 0)
+ 1381                          ENDIF
+
+
+
+ARM Macro Assembler    Page 37 
+
+
+ 1382 00000278         
+ 1383 00000278 E3A06DE1        LDR              R6, =14400  ; Number of cycles 
+                                                            to delay
+ 1384 0000027C E2566001 
+                       Wait_3  SUBS             R6, R6, #1  ; Delay ~1 ms @ pro
+                                                            c clk 57.6 MHz
+ 1385 00000280 1AFFFFFD        BNE              Wait_3
+ 1386 00000284         
+ 1387 00000284                 ENDIF                        ; EMC_DYNAMIC_SETUP
+                                                            
+ 1388 00000284         
+ 1389 00000284         ;  Setup Static Memory Interface
+ 1390 00000284                 IF               (EMC_STATIC_SETUP != 0)
+ 1391 00000284         
+ 1392 00000284 E59F610C        LDR              R6, =1440000 ; Number of cycles
+                                                             to delay
+ 1393 00000288 E2566001 
+                       Wait_4  SUBS             R6, R6, #1  ; Delay ~100 ms @ p
+                                                            roc clk 57.6 MHz
+ 1394 0000028C 1AFFFFFD        BNE              Wait_4
+ 1395 00000290         
+ 1396 00000290                 IF               (EMC_STACS0_SETUP != 0)
+ 1397 00000290 E3A04081        LDR              R4, =EMC_STA_CFG0_Val
+ 1398 00000294 E5804200        STR              R4, [R0, #EMC_STA_CFG0_OFS]
+ 1399 00000298 E3A04004        LDR              R4, =EMC_STA_WWEN0_Val
+ 1400 0000029C E5804204        STR              R4, [R0, #EMC_STA_WWEN0_OFS]
+ 1401 000002A0 E3A04004        LDR              R4, =EMC_STA_WOEN0_Val
+ 1402 000002A4 E5804208        STR              R4, [R0, #EMC_STA_WOEN0_OFS]
+ 1403 000002A8 E3A04009        LDR              R4, =EMC_STA_WRD0_Val
+ 1404 000002AC E580420C        STR              R4, [R0, #EMC_STA_WRD0_OFS]
+ 1405 000002B0 E3A04000        LDR              R4, =EMC_STA_WPAGE0_Val
+ 1406 000002B4 E5804210        STR              R4, [R0, #EMC_STA_WPAGE0_OFS]
+ 1407 000002B8 E3A04000        LDR              R4, =EMC_STA_WWR0_Val
+ 1408 000002BC E5804214        STR              R4, [R0, #EMC_STA_WWR0_OFS]
+ 1409 000002C0 E3A04000        LDR              R4, =EMC_STA_WTURN0_Val
+ 1410 000002C4 E5804218        STR              R4, [R0, #EMC_STA_WTURN0_OFS]
+ 1411 000002C8                 ENDIF
+ 1412 000002C8         
+ 1413 000002C8                 IF               (EMC_STACS1_SETUP != 0)
+ 1414 000002C8 E3A04080        LDR              R4, =EMC_STA_CFG1_Val
+ 1415 000002CC E5804220        STR              R4, [R0, #EMC_STA_CFG1_OFS]
+ 1416 000002D0 E3A04000        LDR              R4, =EMC_STA_WWEN1_Val
+ 1417 000002D4 E5804224        STR              R4, [R0, #EMC_STA_WWEN1_OFS]
+ 1418 000002D8 E3A04000        LDR              R4, =EMC_STA_WOEN1_Val
+ 1419 000002DC E5804228        STR              R4, [R0, #EMC_STA_WOEN1_OFS]
+ 1420 000002E0 E3A04008        LDR              R4, =EMC_STA_WRD1_Val
+ 1421 000002E4 E580422C        STR              R4, [R0, #EMC_STA_WRD1_OFS]
+ 1422 000002E8 E3A0401F        LDR              R4, =EMC_STA_WPAGE1_Val
+ 1423 000002EC E5804230        STR              R4, [R0, #EMC_STA_WPAGE1_OFS]
+ 1424 000002F0 E3A0401F        LDR              R4, =EMC_STA_WWR1_Val
+ 1425 000002F4 E5804234        STR              R4, [R0, #EMC_STA_WWR1_OFS]
+ 1426 000002F8 E3A0400F        LDR              R4, =EMC_STA_WTURN1_Val
+ 1427 000002FC E5804238        STR              R4, [R0, #EMC_STA_WTURN1_OFS]
+ 1428 00000300                 ENDIF
+ 1429 00000300         
+ 1430 00000300                 IF               (EMC_STACS2_SETUP != 0)
+ 1445                          ENDIF
+ 1446 00000300         
+ 1447 00000300                 IF               (EMC_STACS3_SETUP != 0)
+
+
+
+ARM Macro Assembler    Page 38 
+
+
+ 1462                          ENDIF
+ 1463 00000300         
+ 1464 00000300 E59F60A0        LDR              R6, =144000 ; Number of cycles 
+                                                            to delay
+ 1465 00000304 E2566001 
+                       Wait_5  SUBS             R6, R6, #1  ; Delay ~10 ms @ pr
+                                                            oc clk 57.6 MHz
+ 1466 00000308 1AFFFFFD        BNE              Wait_5
+ 1467 0000030C         
+ 1468 0000030C E3A04000        LDR              R4, =EMC_STA_EXT_W_Val
+ 1469 00000310 E3A05080        LDR              R5, =EMC_STA_EXT_W_OFS
+ 1470 00000314 E0855000        ADD              R5, R5, R0
+ 1471 00000318 E5854000        STR              R4, [R5, #0]
+ 1472 0000031C         
+ 1473 0000031C                 ENDIF                        ; EMC_STATIC_SETUP 
+                                                            
+ 1474 0000031C         
+ 1475 0000031C                 ENDIF                        ; EMC_SETUP
+ 1476 0000031C         
+ 1477 0000031C         
+ 1478 0000031C         ; Copy Exception Vectors to Internal RAM ---------------
+                       ------------------------
+ 1479 0000031C         
+ 1480 0000031C                 IF               :DEF:RAM_INTVEC
+ 1487                          ENDIF
+ 1488 0000031C         
+ 1489 0000031C         
+ 1490 0000031C         ; Memory Mapping (when Interrupt Vectors are in RAM) ---
+                       ------------------------
+ 1491 0000031C         
+ 1492 0000031C E01FC040 
+                       MEMMAP  EQU              0xE01FC040  ; Memory Mapping Co
+                                                            ntrol
+ 1493 0000031C                 IF               :DEF:REMAP
+ 1503                          ENDIF
+ 1504 0000031C         
+ 1505 0000031C         
+ 1506 0000031C         ; Setup Stack for each mode ----------------------------
+                       ------------------------
+ 1507 0000031C         
+ 1508 0000031C E59F0088        LDR              R0, =Stack_Top
+ 1509 00000320         
+ 1510 00000320         ;  Enter Undefined Instruction Mode and set its Stack Po
+                       inter
+ 1511 00000320 E321F0DB        MSR              CPSR_c, #Mode_UND:OR:I_Bit:OR:F
+_Bit
+ 1512 00000324 E1A0D000        MOV              SP, R0
+ 1513 00000328 E2400000        SUB              R0, R0, #UND_Stack_Size
+ 1514 0000032C         
+ 1515 0000032C         ;  Enter Abort Mode and set its Stack Pointer
+ 1516 0000032C E321F0D7        MSR              CPSR_c, #Mode_ABT:OR:I_Bit:OR:F
+_Bit
+ 1517 00000330 E1A0D000        MOV              SP, R0
+ 1518 00000334 E2400000        SUB              R0, R0, #ABT_Stack_Size
+ 1519 00000338         
+ 1520 00000338         ;  Enter FIQ Mode and set its Stack Pointer
+ 1521 00000338 E321F0D1        MSR              CPSR_c, #Mode_FIQ:OR:I_Bit:OR:F
+_Bit
+ 1522 0000033C E1A0D000        MOV              SP, R0
+
+
+
+ARM Macro Assembler    Page 39 
+
+
+ 1523 00000340 E2400B03        SUB              R0, R0, #FIQ_Stack_Size
+ 1524 00000344         
+ 1525 00000344         ;  Enter IRQ Mode and set its Stack Pointer
+ 1526 00000344 E321F0D2        MSR              CPSR_c, #Mode_IRQ:OR:I_Bit:OR:F
+_Bit
+ 1527 00000348 E1A0D000        MOV              SP, R0
+ 1528 0000034C E2400B03        SUB              R0, R0, #IRQ_Stack_Size
+ 1529 00000350         
+ 1530 00000350         ;  Enter Supervisor Mode and set its Stack Pointer
+ 1531 00000350 E321F0D3        MSR              CPSR_c, #Mode_SVC:OR:I_Bit:OR:F
+_Bit
+ 1532 00000354 E1A0D000        MOV              SP, R0
+ 1533 00000358 E2400B02        SUB              R0, R0, #SVC_Stack_Size
+ 1534 0000035C         
+ 1535 0000035C         ;  Enter User Mode and set its Stack Pointer
+ 1536 0000035C E321F010        MSR              CPSR_c, #Mode_USR
+ 1537 00000360                 IF               :DEF:__MICROLIB
+ 1542 00000360         
+ 1543 00000360 E1A0D000        MOV              SP, R0
+ 1544 00000364 E24DA902        SUB              SL, SP, #USR_Stack_Size
+ 1545 00000368         
+ 1546 00000368                 ENDIF
+ 1547 00000368         
+ 1548 00000368         ; Enter the C code -------------------------------------
+                       ------------------------
+ 1549 00000368         
+ 1550 00000368                 IMPORT           __main
+ 1551 00000368 E59F0040        LDR              R0, =__main
+ 1552 0000036C E12FFF10        BX               R0
+ 1553 00000370         
+ 1554 00000370         
+ 1555 00000370                 IF               :DEF:__MICROLIB
+ 1561 00000370         ; User Initial Stack & Heap
+ 1562 00000370 E01FC000 
+              00FF7FFF 
+              FFE08000 
+              E002C000 
+              55010115 
+              55555555 
+              05555555 
+              50055555 
+              00000303 
+              00080680 
+              0015F900 
+              00000183 
+              002BF200 
+              00000103 
+              00023280 
+              00000000 
+              00000000         AREA             |.text|, CODE, READONLY
+ 1563 00000000         
+ 1564 00000000                 IMPORT           __use_two_region_memory
+ 1565 00000000                 EXPORT           __user_initial_stackheap
+ 1566 00000000         __user_initial_stackheap
+ 1567 00000000         
+ 1568 00000000 E59F000C        LDR              R0, =  Heap_Mem
+ 1569 00000004 E59F100C        LDR              R1, =(Stack_Mem + USR_Stack_Siz
+e)
+ 1570 00000008 E59F200C        LDR              R2, = (Heap_Mem +      Heap_Siz
+
+
+
+ARM Macro Assembler    Page 40 
+
+
+e)
+ 1571 0000000C E59F300C        LDR              R3, = Stack_Mem
+ 1572 00000010 E12FFF1E        BX               LR
+ 1573 00000014                 ENDIF
+ 1574 00000014         
+ 1575 00000014         
+ 1576 00000014                 END
+              00000000 
+              00008000 
+              00050000 
+              00000000 
+Command Line: --debug --xref --apcs=interwork --depend=..\ZObjLst\LPC2400_RTX.d
+ -o..\ZObjLst\LPC2400_RTX.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include 
+-IC:\Keil\ARM\Inc\Philips --predefine="__RTX SETA 1" --list=..\ZObjLst\LPC2400_
+RTX.lst ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+STACK 00000000
+
+Symbol: STACK
+   Definitions
+      At line 96 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: STACK unused
+Stack_Mem 00000000
+
+Symbol: Stack_Mem
+   Definitions
+      At line 98 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1569 in file ..\OSL\LPC2400_RTX.s
+      At line 1571 in file ..\OSL\LPC2400_RTX.s
+
+Stack_Top 0000A000
+
+Symbol: Stack_Top
+   Definitions
+      At line 101 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1508 in file ..\OSL\LPC2400_RTX.s
+Comment: Stack_Top used once
+__initial_sp 00008000
+
+Symbol: __initial_sp
+   Definitions
+      At line 99 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: __initial_sp unused
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+HEAP 00000000
+
+Symbol: HEAP
+   Definitions
+      At line 110 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: HEAP unused
+Heap_Mem 00000000
+
+Symbol: Heap_Mem
+   Definitions
+      At line 112 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1568 in file ..\OSL\LPC2400_RTX.s
+      At line 1570 in file ..\OSL\LPC2400_RTX.s
+
+__heap_base 00000000
+
+Symbol: __heap_base
+   Definitions
+      At line 111 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: __heap_base unused
+__heap_limit 00050000
+
+Symbol: __heap_limit
+   Definitions
+      At line 113 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: __heap_limit unused
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DAbt_Addr 00000030
+
+Symbol: DAbt_Addr
+   Definitions
+      At line 1074 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1064 in file ..\OSL\LPC2400_RTX.s
+Comment: DAbt_Addr used once
+DAbt_Handler 00000048
+
+Symbol: DAbt_Handler
+   Definitions
+      At line 1082 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1074 in file ..\OSL\LPC2400_RTX.s
+      At line 1082 in file ..\OSL\LPC2400_RTX.s
+
+FIQ_Addr 0000003C
+
+Symbol: FIQ_Addr
+   Definitions
+      At line 1077 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1068 in file ..\OSL\LPC2400_RTX.s
+Comment: FIQ_Addr used once
+FIQ_Handler 00000050
+
+Symbol: FIQ_Handler
+   Definitions
+      At line 1084 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1077 in file ..\OSL\LPC2400_RTX.s
+      At line 1084 in file ..\OSL\LPC2400_RTX.s
+
+IRQ_Addr 00000038
+
+Symbol: IRQ_Addr
+   Definitions
+      At line 1076 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: IRQ_Addr unused
+IRQ_Handler 0000004C
+
+Symbol: IRQ_Handler
+   Definitions
+      At line 1083 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1076 in file ..\OSL\LPC2400_RTX.s
+      At line 1083 in file ..\OSL\LPC2400_RTX.s
+
+M_N_Lock 000000A8
+
+Symbol: M_N_Lock
+   Definitions
+      At line 1133 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1138 in file ..\OSL\LPC2400_RTX.s
+Comment: M_N_Lock used once
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+OSC_Loop 00000068
+
+Symbol: OSC_Loop
+   Definitions
+      At line 1105 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1107 in file ..\OSL\LPC2400_RTX.s
+Comment: OSC_Loop used once
+PAbt_Addr 0000002C
+
+Symbol: PAbt_Addr
+   Definitions
+      At line 1073 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1063 in file ..\OSL\LPC2400_RTX.s
+Comment: PAbt_Addr used once
+PAbt_Handler 00000044
+
+Symbol: PAbt_Handler
+   Definitions
+      At line 1081 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1073 in file ..\OSL\LPC2400_RTX.s
+      At line 1081 in file ..\OSL\LPC2400_RTX.s
+
+PLL_Loop 0000009C
+
+Symbol: PLL_Loop
+   Definitions
+      At line 1123 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1125 in file ..\OSL\LPC2400_RTX.s
+Comment: PLL_Loop used once
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 1051 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: RESET unused
+Reset_Addr 00000020
+
+Symbol: Reset_Addr
+   Definitions
+      At line 1070 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1060 in file ..\OSL\LPC2400_RTX.s
+Comment: Reset_Addr used once
+Reset_Handler 00000054
+
+Symbol: Reset_Handler
+   Definitions
+      At line 1090 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1070 in file ..\OSL\LPC2400_RTX.s
+      At line 1089 in file ..\OSL\LPC2400_RTX.s
+
+SWI_Addr 00000028
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: SWI_Addr
+   Definitions
+      At line 1072 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1062 in file ..\OSL\LPC2400_RTX.s
+Comment: SWI_Addr used once
+Undef_Addr 00000024
+
+Symbol: Undef_Addr
+   Definitions
+      At line 1071 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1061 in file ..\OSL\LPC2400_RTX.s
+Comment: Undef_Addr used once
+Undef_Handler 00000040
+
+Symbol: Undef_Handler
+   Definitions
+      At line 1079 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1071 in file ..\OSL\LPC2400_RTX.s
+      At line 1079 in file ..\OSL\LPC2400_RTX.s
+
+Vectors 00000000
+
+Symbol: Vectors
+   Definitions
+      At line 1060 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: Vectors unused
+Wait_0 00000204
+
+Symbol: Wait_0
+   Definitions
+      At line 1278 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1279 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_0 used once
+Wait_1 00000218
+
+Symbol: Wait_1
+   Definitions
+      At line 1285 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1286 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_1 used once
+Wait_2 00000234
+
+Symbol: Wait_2
+   Definitions
+      At line 1295 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1296 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_2 used once
+Wait_3 0000027C
+
+Symbol: Wait_3
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 1384 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1385 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_3 used once
+Wait_4 00000288
+
+Symbol: Wait_4
+   Definitions
+      At line 1393 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1394 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_4 used once
+Wait_5 00000304
+
+Symbol: Wait_5
+   Definitions
+      At line 1465 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1466 in file ..\OSL\LPC2400_RTX.s
+Comment: Wait_5 used once
+24 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 1562 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: .text unused
+__user_initial_stackheap 00000000
+
+Symbol: __user_initial_stackheap
+   Definitions
+      At line 1566 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1565 in file ..\OSL\LPC2400_RTX.s
+Comment: __user_initial_stackheap used once
+2 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+ABT_Stack_Size 00000000
+
+Symbol: ABT_Stack_Size
+   Definitions
+      At line 88 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+      At line 1518 in file ..\OSL\LPC2400_RTX.s
+
+BUFEN_Const 00080000
+
+Symbol: BUFEN_Const
+   Definitions
+      At line 444 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1248 in file ..\OSL\LPC2400_RTX.s
+      At line 1366 in file ..\OSL\LPC2400_RTX.s
+      At line 1370 in file ..\OSL\LPC2400_RTX.s
+      At line 1374 in file ..\OSL\LPC2400_RTX.s
+      At line 1378 in file ..\OSL\LPC2400_RTX.s
+
+CCLKCFG_OFS 00000104
+
+Symbol: CCLKCFG_OFS
+   Definitions
+      At line 124 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1142 in file ..\OSL\LPC2400_RTX.s
+Comment: CCLKCFG_OFS used once
+CCLKCFG_Val 00000003
+
+Symbol: CCLKCFG_Val
+   Definitions
+      At line 335 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1141 in file ..\OSL\LPC2400_RTX.s
+Comment: CCLKCFG_Val used once
+CLKSRCSEL_OFS 0000010C
+
+Symbol: CLKSRCSEL_OFS
+   Definitions
+      At line 126 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1111 in file ..\OSL\LPC2400_RTX.s
+Comment: CLKSRCSEL_OFS used once
+CLKSRCSEL_Val 00000001
+
+Symbol: CLKSRCSEL_Val
+   Definitions
+      At line 333 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1110 in file ..\OSL\LPC2400_RTX.s
+      At line 1121 in file ..\OSL\LPC2400_RTX.s
+
+CLOCK_SETUP 00000001
+
+Symbol: CLOCK_SETUP
+   Definitions
+      At line 331 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Absolute symbols
+
+   Uses
+      At line 1095 in file ..\OSL\LPC2400_RTX.s
+Comment: CLOCK_SETUP used once
+DYN_MEM0_BASE A0000000
+
+Symbol: DYN_MEM0_BASE
+   Definitions
+      At line 69 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1306 in file ..\OSL\LPC2400_RTX.s
+Comment: DYN_MEM0_BASE used once
+DYN_MEM1_BASE B0000000
+
+Symbol: DYN_MEM1_BASE
+   Definitions
+      At line 70 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: DYN_MEM1_BASE unused
+DYN_MEM2_BASE C0000000
+
+Symbol: DYN_MEM2_BASE
+   Definitions
+      At line 71 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: DYN_MEM2_BASE unused
+DYN_MEM3_BASE D0000000
+
+Symbol: DYN_MEM3_BASE
+   Definitions
+      At line 72 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: DYN_MEM3_BASE unused
+EMC_BASE FFE08000
+
+Symbol: EMC_BASE
+   Definitions
+      At line 381 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1176 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_BASE used once
+EMC_CONFIG_OFS 00000008
+
+Symbol: EMC_CONFIG_OFS
+   Definitions
+      At line 385 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1188 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_CONFIG_OFS used once
+EMC_CONFIG_Val 00000000
+
+Symbol: EMC_CONFIG_Val
+   Definitions
+      At line 482 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1187 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_CONFIG_Val used once
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Absolute symbols
+
+EMC_CTRL_OFS 00000000
+
+Symbol: EMC_CTRL_OFS
+   Definitions
+      At line 383 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1186 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_CTRL_OFS used once
+EMC_CTRL_Val 00000001
+
+Symbol: EMC_CTRL_Val
+   Definitions
+      At line 471 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1185 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_CTRL_Val used once
+EMC_DYNAMIC_SETUP 00000001
+
+Symbol: EMC_DYNAMIC_SETUP
+   Definitions
+      At line 486 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1216 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYNAMIC_SETUP used once
+EMC_DYNCS0_SETUP 00000001
+
+Symbol: EMC_DYNCS0_SETUP
+   Definitions
+      At line 576 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1244 in file ..\OSL\LPC2400_RTX.s
+      At line 1305 in file ..\OSL\LPC2400_RTX.s
+      At line 1366 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYNCS1_SETUP 00000000
+
+Symbol: EMC_DYNCS1_SETUP
+   Definitions
+      At line 623 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1252 in file ..\OSL\LPC2400_RTX.s
+      At line 1319 in file ..\OSL\LPC2400_RTX.s
+      At line 1370 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYNCS2_SETUP 00000000
+
+Symbol: EMC_DYNCS2_SETUP
+   Definitions
+      At line 669 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1260 in file ..\OSL\LPC2400_RTX.s
+      At line 1333 in file ..\OSL\LPC2400_RTX.s
+      At line 1374 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYNCS3_SETUP 00000000
+
+Symbol: EMC_DYNCS3_SETUP
+   Definitions
+      At line 715 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Absolute symbols
+
+   Uses
+      At line 1268 in file ..\OSL\LPC2400_RTX.s
+      At line 1347 in file ..\OSL\LPC2400_RTX.s
+      At line 1378 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_APR_OFS 0000003C
+
+Symbol: EMC_DYN_APR_OFS
+   Definitions
+      At line 392 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1225 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_APR_OFS used once
+EMC_DYN_APR_Val 00000002
+
+Symbol: EMC_DYN_APR_Val
+   Definitions
+      At line 566 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1224 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_APR_Val used once
+EMC_DYN_CFG0_OFS 00000100
+
+Symbol: EMC_DYN_CFG0_OFS
+   Definitions
+      At line 400 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1250 in file ..\OSL\LPC2400_RTX.s
+      At line 1368 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_CFG0_Val 00080680
+
+Symbol: EMC_DYN_CFG0_Val
+   Definitions
+      At line 604 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1247 in file ..\OSL\LPC2400_RTX.s
+      At line 1309 in file ..\OSL\LPC2400_RTX.s
+      At line 1366 in file ..\OSL\LPC2400_RTX.s
+      At line 1367 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_CFG1_OFS 00000140
+
+Symbol: EMC_DYN_CFG1_OFS
+   Definitions
+      At line 402 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_CFG1_OFS unused
+EMC_DYN_CFG1_Val 00000000
+
+Symbol: EMC_DYN_CFG1_Val
+   Definitions
+      At line 651 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1370 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_CFG1_Val used once
+EMC_DYN_CFG2_OFS 00000160
+
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Absolute symbols
+
+Symbol: EMC_DYN_CFG2_OFS
+   Definitions
+      At line 404 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_CFG2_OFS unused
+EMC_DYN_CFG2_Val 00000000
+
+Symbol: EMC_DYN_CFG2_Val
+   Definitions
+      At line 697 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1374 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_CFG2_Val used once
+EMC_DYN_CFG3_OFS 00000180
+
+Symbol: EMC_DYN_CFG3_OFS
+   Definitions
+      At line 406 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_CFG3_OFS unused
+EMC_DYN_CFG3_Val 00000000
+
+Symbol: EMC_DYN_CFG3_Val
+   Definitions
+      At line 743 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1378 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_CFG3_Val used once
+EMC_DYN_CTRL_OFS 00000020
+
+Symbol: EMC_DYN_CTRL_OFS
+   Definitions
+      At line 386 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1282 in file ..\OSL\LPC2400_RTX.s
+      At line 1289 in file ..\OSL\LPC2400_RTX.s
+      At line 1302 in file ..\OSL\LPC2400_RTX.s
+      At line 1363 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_DAL_OFS 00000040
+
+Symbol: EMC_DYN_DAL_OFS
+   Definitions
+      At line 393 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1227 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_DAL_OFS used once
+EMC_DYN_DAL_Val 00000005
+
+Symbol: EMC_DYN_DAL_Val
+   Definitions
+      At line 567 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1226 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_DAL_Val used once
+EMC_DYN_MRD_OFS 00000058
+
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Absolute symbols
+
+Symbol: EMC_DYN_MRD_OFS
+   Definitions
+      At line 399 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1239 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_MRD_OFS used once
+EMC_DYN_MRD_Val 00000002
+
+Symbol: EMC_DYN_MRD_Val
+   Definitions
+      At line 573 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1238 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_MRD_Val used once
+EMC_DYN_RASCAS0_OFS 00000104
+
+Symbol: EMC_DYN_RASCAS0_OFS
+   Definitions
+      At line 401 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1246 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RASCAS0_OFS used once
+EMC_DYN_RASCAS0_Val 00000303
+
+Symbol: EMC_DYN_RASCAS0_Val
+   Definitions
+      At line 617 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1245 in file ..\OSL\LPC2400_RTX.s
+      At line 1307 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_RASCAS1_OFS 00000144
+
+Symbol: EMC_DYN_RASCAS1_OFS
+   Definitions
+      At line 403 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS1_OFS unused
+EMC_DYN_RASCAS1_Val 00000303
+
+Symbol: EMC_DYN_RASCAS1_Val
+   Definitions
+      At line 664 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS1_Val unused
+EMC_DYN_RASCAS2_OFS 00000164
+
+Symbol: EMC_DYN_RASCAS2_OFS
+   Definitions
+      At line 405 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS2_OFS unused
+EMC_DYN_RASCAS2_Val 00000303
+
+Symbol: EMC_DYN_RASCAS2_Val
+   Definitions
+
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 710 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS2_Val unused
+EMC_DYN_RASCAS3_OFS 00000184
+
+Symbol: EMC_DYN_RASCAS3_OFS
+   Definitions
+      At line 407 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS3_OFS unused
+EMC_DYN_RASCAS3_Val 00000303
+
+Symbol: EMC_DYN_RASCAS3_Val
+   Definitions
+      At line 756 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_DYN_RASCAS3_Val unused
+EMC_DYN_RAS_OFS 00000034
+
+Symbol: EMC_DYN_RAS_OFS
+   Definitions
+      At line 390 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1221 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RAS_OFS used once
+EMC_DYN_RAS_Val 00000003
+
+Symbol: EMC_DYN_RAS_Val
+   Definitions
+      At line 564 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1220 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RAS_Val used once
+EMC_DYN_RC_OFS 00000048
+
+Symbol: EMC_DYN_RC_OFS
+   Definitions
+      At line 395 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1231 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RC_OFS used once
+EMC_DYN_RC_Val 00000005
+
+Symbol: EMC_DYN_RC_Val
+   Definitions
+      At line 569 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1230 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RC_Val used once
+EMC_DYN_RD_CFG_OFS 00000028
+
+Symbol: EMC_DYN_RD_CFG_OFS
+   Definitions
+      At line 388 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1242 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Absolute symbols
+
+Comment: EMC_DYN_RD_CFG_OFS used once
+EMC_DYN_RD_CFG_Val 00000001
+
+Symbol: EMC_DYN_RD_CFG_Val
+   Definitions
+      At line 503 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1241 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RD_CFG_Val used once
+EMC_DYN_RFC_OFS 0000004C
+
+Symbol: EMC_DYN_RFC_OFS
+   Definitions
+      At line 396 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1233 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RFC_OFS used once
+EMC_DYN_RFC_Val 00000005
+
+Symbol: EMC_DYN_RFC_Val
+   Definitions
+      At line 570 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1232 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RFC_Val used once
+EMC_DYN_RFSH_OFS 00000024
+
+Symbol: EMC_DYN_RFSH_OFS
+   Definitions
+      At line 387 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1292 in file ..\OSL\LPC2400_RTX.s
+      At line 1299 in file ..\OSL\LPC2400_RTX.s
+
+EMC_DYN_RFSH_Val 0000001C
+
+Symbol: EMC_DYN_RFSH_Val
+   Definitions
+      At line 493 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1298 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RFSH_Val used once
+EMC_DYN_RP_OFS 00000030
+
+Symbol: EMC_DYN_RP_OFS
+   Definitions
+      At line 389 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1219 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RP_OFS used once
+EMC_DYN_RP_Val 00000002
+
+Symbol: EMC_DYN_RP_Val
+   Definitions
+      At line 563 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1218 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RP_Val used once
+EMC_DYN_RRD_OFS 00000054
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Absolute symbols
+
+
+Symbol: EMC_DYN_RRD_OFS
+   Definitions
+      At line 398 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1237 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RRD_OFS used once
+EMC_DYN_RRD_Val 00000001
+
+Symbol: EMC_DYN_RRD_Val
+   Definitions
+      At line 572 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1236 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_RRD_Val used once
+EMC_DYN_SREX_OFS 00000038
+
+Symbol: EMC_DYN_SREX_OFS
+   Definitions
+      At line 391 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1223 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_SREX_OFS used once
+EMC_DYN_SREX_Val 00000007
+
+Symbol: EMC_DYN_SREX_Val
+   Definitions
+      At line 565 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1222 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_SREX_Val used once
+EMC_DYN_WR_OFS 00000044
+
+Symbol: EMC_DYN_WR_OFS
+   Definitions
+      At line 394 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1229 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_WR_OFS used once
+EMC_DYN_WR_Val 00000001
+
+Symbol: EMC_DYN_WR_Val
+   Definitions
+      At line 568 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1228 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_WR_Val used once
+EMC_DYN_XSR_OFS 00000050
+
+Symbol: EMC_DYN_XSR_OFS
+   Definitions
+      At line 397 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1235 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_XSR_OFS used once
+EMC_DYN_XSR_Val 00000007
+
+Symbol: EMC_DYN_XSR_Val
+   Definitions
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 571 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1234 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_DYN_XSR_Val used once
+EMC_PCONP_Const 00000800
+
+Symbol: EMC_PCONP_Const
+   Definitions
+      At line 445 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1180 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PCONP_Const used once
+EMC_PINSEL10_Val 00000000
+
+Symbol: EMC_PINSEL10_Val
+   Definitions
+      At line 460 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1212 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PINSEL10_Val used once
+EMC_PINSEL5_Val 55010115
+
+Symbol: EMC_PINSEL5_Val
+   Definitions
+      At line 455 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1202 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PINSEL5_Val used once
+EMC_PINSEL6_Val 55555555
+
+Symbol: EMC_PINSEL6_Val
+   Definitions
+      At line 456 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1204 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PINSEL6_Val used once
+EMC_PINSEL7_Val 05555555
+
+Symbol: EMC_PINSEL7_Val
+   Definitions
+      At line 457 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1206 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PINSEL7_Val used once
+EMC_PINSEL8_Val 55555555
+
+Symbol: EMC_PINSEL8_Val
+   Definitions
+      At line 458 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1208 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_PINSEL8_Val used once
+EMC_PINSEL9_Val 50055555
+
+Symbol: EMC_PINSEL9_Val
+   Definitions
+      At line 459 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1210 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 11 Alphabetic symbol ordering
+Absolute symbols
+
+Comment: EMC_PINSEL9_Val used once
+EMC_SETUP 00000001
+
+Symbol: EMC_SETUP
+   Definitions
+      At line 463 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1175 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_SETUP used once
+EMC_STACS0_SETUP 00000001
+
+Symbol: EMC_STACS0_SETUP
+   Definitions
+      At line 768 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1396 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STACS0_SETUP used once
+EMC_STACS1_SETUP 00000001
+
+Symbol: EMC_STACS1_SETUP
+   Definitions
+      At line 835 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1413 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STACS1_SETUP used once
+EMC_STACS2_SETUP 00000000
+
+Symbol: EMC_STACS2_SETUP
+   Definitions
+      At line 902 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1430 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STACS2_SETUP used once
+EMC_STACS3_SETUP 00000000
+
+Symbol: EMC_STACS3_SETUP
+   Definitions
+      At line 969 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1447 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STACS3_SETUP used once
+EMC_STATIC_SETUP 00000001
+
+Symbol: EMC_STATIC_SETUP
+   Definitions
+      At line 764 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1390 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STATIC_SETUP used once
+EMC_STAT_OFS 00000004
+
+Symbol: EMC_STAT_OFS
+   Definitions
+      At line 384 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STAT_OFS unused
+EMC_STA_CFG0_OFS 00000200
+
+
+
+
+ARM Macro Assembler    Page 12 Alphabetic symbol ordering
+Absolute symbols
+
+Symbol: EMC_STA_CFG0_OFS
+   Definitions
+      At line 408 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1398 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_CFG0_OFS used once
+EMC_STA_CFG0_Val 00000081
+
+Symbol: EMC_STA_CFG0_Val
+   Definitions
+      At line 787 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1397 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_CFG0_Val used once
+EMC_STA_CFG1_OFS 00000220
+
+Symbol: EMC_STA_CFG1_OFS
+   Definitions
+      At line 415 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1415 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_CFG1_OFS used once
+EMC_STA_CFG1_Val 00000080
+
+Symbol: EMC_STA_CFG1_Val
+   Definitions
+      At line 854 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1414 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_CFG1_Val used once
+EMC_STA_CFG2_OFS 00000240
+
+Symbol: EMC_STA_CFG2_OFS
+   Definitions
+      At line 422 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_CFG2_OFS unused
+EMC_STA_CFG2_Val 00000000
+
+Symbol: EMC_STA_CFG2_Val
+   Definitions
+      At line 921 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_CFG2_Val unused
+EMC_STA_CFG3_OFS 00000260
+
+Symbol: EMC_STA_CFG3_OFS
+   Definitions
+      At line 429 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_CFG3_OFS unused
+EMC_STA_CFG3_Val 00000000
+
+Symbol: EMC_STA_CFG3_Val
+   Definitions
+      At line 988 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 13 Alphabetic symbol ordering
+Absolute symbols
+
+   Uses
+      None
+Comment: EMC_STA_CFG3_Val unused
+EMC_STA_EXT_W_OFS 00000080
+
+Symbol: EMC_STA_EXT_W_OFS
+   Definitions
+      At line 436 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1469 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_EXT_W_OFS used once
+EMC_STA_EXT_W_Val 00000000
+
+Symbol: EMC_STA_EXT_W_Val
+   Definitions
+      At line 1039 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1468 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_EXT_W_Val used once
+EMC_STA_WOEN0_OFS 00000208
+
+Symbol: EMC_STA_WOEN0_OFS
+   Definitions
+      At line 410 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1402 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WOEN0_OFS used once
+EMC_STA_WOEN0_Val 00000004
+
+Symbol: EMC_STA_WOEN0_Val
+   Definitions
+      At line 801 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1401 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WOEN0_Val used once
+EMC_STA_WOEN1_OFS 00000228
+
+Symbol: EMC_STA_WOEN1_OFS
+   Definitions
+      At line 417 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1419 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WOEN1_OFS used once
+EMC_STA_WOEN1_Val 00000000
+
+Symbol: EMC_STA_WOEN1_Val
+   Definitions
+      At line 868 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1418 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WOEN1_Val used once
+EMC_STA_WOEN2_OFS 00000248
+
+Symbol: EMC_STA_WOEN2_OFS
+   Definitions
+      At line 424 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WOEN2_OFS unused
+
+
+
+ARM Macro Assembler    Page 14 Alphabetic symbol ordering
+Absolute symbols
+
+EMC_STA_WOEN2_Val 00000000
+
+Symbol: EMC_STA_WOEN2_Val
+   Definitions
+      At line 935 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WOEN2_Val unused
+EMC_STA_WOEN3_OFS 00000268
+
+Symbol: EMC_STA_WOEN3_OFS
+   Definitions
+      At line 431 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WOEN3_OFS unused
+EMC_STA_WOEN3_Val 00000000
+
+Symbol: EMC_STA_WOEN3_Val
+   Definitions
+      At line 1002 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WOEN3_Val unused
+EMC_STA_WPAGE0_OFS 00000210
+
+Symbol: EMC_STA_WPAGE0_OFS
+   Definitions
+      At line 412 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1406 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WPAGE0_OFS used once
+EMC_STA_WPAGE0_Val 00000000
+
+Symbol: EMC_STA_WPAGE0_Val
+   Definitions
+      At line 815 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1405 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WPAGE0_Val used once
+EMC_STA_WPAGE1_OFS 00000230
+
+Symbol: EMC_STA_WPAGE1_OFS
+   Definitions
+      At line 419 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1423 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WPAGE1_OFS used once
+EMC_STA_WPAGE1_Val 0000001F
+
+Symbol: EMC_STA_WPAGE1_Val
+   Definitions
+      At line 882 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1422 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WPAGE1_Val used once
+EMC_STA_WPAGE2_OFS 00000250
+
+Symbol: EMC_STA_WPAGE2_OFS
+
+
+
+ARM Macro Assembler    Page 15 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 426 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WPAGE2_OFS unused
+EMC_STA_WPAGE2_Val 0000001F
+
+Symbol: EMC_STA_WPAGE2_Val
+   Definitions
+      At line 949 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WPAGE2_Val unused
+EMC_STA_WPAGE3_OFS 00000270
+
+Symbol: EMC_STA_WPAGE3_OFS
+   Definitions
+      At line 433 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WPAGE3_OFS unused
+EMC_STA_WPAGE3_Val 0000001F
+
+Symbol: EMC_STA_WPAGE3_Val
+   Definitions
+      At line 1016 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WPAGE3_Val unused
+EMC_STA_WRD0_OFS 0000020C
+
+Symbol: EMC_STA_WRD0_OFS
+   Definitions
+      At line 411 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1404 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WRD0_OFS used once
+EMC_STA_WRD0_Val 00000009
+
+Symbol: EMC_STA_WRD0_Val
+   Definitions
+      At line 808 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1403 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WRD0_Val used once
+EMC_STA_WRD1_OFS 0000022C
+
+Symbol: EMC_STA_WRD1_OFS
+   Definitions
+      At line 418 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1421 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WRD1_OFS used once
+EMC_STA_WRD1_Val 00000008
+
+Symbol: EMC_STA_WRD1_Val
+   Definitions
+      At line 875 in file ..\OSL\LPC2400_RTX.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 16 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 1420 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WRD1_Val used once
+EMC_STA_WRD2_OFS 0000024C
+
+Symbol: EMC_STA_WRD2_OFS
+   Definitions
+      At line 425 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WRD2_OFS unused
+EMC_STA_WRD2_Val 0000001F
+
+Symbol: EMC_STA_WRD2_Val
+   Definitions
+      At line 942 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WRD2_Val unused
+EMC_STA_WRD3_OFS 0000026C
+
+Symbol: EMC_STA_WRD3_OFS
+   Definitions
+      At line 432 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WRD3_OFS unused
+EMC_STA_WRD3_Val 0000001F
+
+Symbol: EMC_STA_WRD3_Val
+   Definitions
+      At line 1009 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WRD3_Val unused
+EMC_STA_WTURN0_OFS 00000218
+
+Symbol: EMC_STA_WTURN0_OFS
+   Definitions
+      At line 414 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1410 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WTURN0_OFS used once
+EMC_STA_WTURN0_Val 00000000
+
+Symbol: EMC_STA_WTURN0_Val
+   Definitions
+      At line 829 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1409 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WTURN0_Val used once
+EMC_STA_WTURN1_OFS 00000238
+
+Symbol: EMC_STA_WTURN1_OFS
+   Definitions
+      At line 421 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1427 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WTURN1_OFS used once
+EMC_STA_WTURN1_Val 0000000F
+
+
+
+ARM Macro Assembler    Page 17 Alphabetic symbol ordering
+Absolute symbols
+
+
+Symbol: EMC_STA_WTURN1_Val
+   Definitions
+      At line 896 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1426 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WTURN1_Val used once
+EMC_STA_WTURN2_OFS 00000258
+
+Symbol: EMC_STA_WTURN2_OFS
+   Definitions
+      At line 428 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WTURN2_OFS unused
+EMC_STA_WTURN2_Val 0000000F
+
+Symbol: EMC_STA_WTURN2_Val
+   Definitions
+      At line 963 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WTURN2_Val unused
+EMC_STA_WTURN3_OFS 00000278
+
+Symbol: EMC_STA_WTURN3_OFS
+   Definitions
+      At line 435 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WTURN3_OFS unused
+EMC_STA_WTURN3_Val 0000000F
+
+Symbol: EMC_STA_WTURN3_Val
+   Definitions
+      At line 1030 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WTURN3_Val unused
+EMC_STA_WWEN0_OFS 00000204
+
+Symbol: EMC_STA_WWEN0_OFS
+   Definitions
+      At line 409 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1400 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWEN0_OFS used once
+EMC_STA_WWEN0_Val 00000004
+
+Symbol: EMC_STA_WWEN0_Val
+   Definitions
+      At line 794 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1399 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWEN0_Val used once
+EMC_STA_WWEN1_OFS 00000224
+
+Symbol: EMC_STA_WWEN1_OFS
+   Definitions
+
+
+
+ARM Macro Assembler    Page 18 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 416 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1417 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWEN1_OFS used once
+EMC_STA_WWEN1_Val 00000000
+
+Symbol: EMC_STA_WWEN1_Val
+   Definitions
+      At line 861 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1416 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWEN1_Val used once
+EMC_STA_WWEN2_OFS 00000244
+
+Symbol: EMC_STA_WWEN2_OFS
+   Definitions
+      At line 423 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWEN2_OFS unused
+EMC_STA_WWEN2_Val 00000000
+
+Symbol: EMC_STA_WWEN2_Val
+   Definitions
+      At line 928 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWEN2_Val unused
+EMC_STA_WWEN3_OFS 00000264
+
+Symbol: EMC_STA_WWEN3_OFS
+   Definitions
+      At line 430 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWEN3_OFS unused
+EMC_STA_WWEN3_Val 00000000
+
+Symbol: EMC_STA_WWEN3_Val
+   Definitions
+      At line 995 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWEN3_Val unused
+EMC_STA_WWR0_OFS 00000214
+
+Symbol: EMC_STA_WWR0_OFS
+   Definitions
+      At line 413 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1408 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWR0_OFS used once
+EMC_STA_WWR0_Val 00000000
+
+Symbol: EMC_STA_WWR0_Val
+   Definitions
+      At line 822 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1407 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 19 Alphabetic symbol ordering
+Absolute symbols
+
+Comment: EMC_STA_WWR0_Val used once
+EMC_STA_WWR1_OFS 00000234
+
+Symbol: EMC_STA_WWR1_OFS
+   Definitions
+      At line 420 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1425 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWR1_OFS used once
+EMC_STA_WWR1_Val 0000001F
+
+Symbol: EMC_STA_WWR1_Val
+   Definitions
+      At line 889 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1424 in file ..\OSL\LPC2400_RTX.s
+Comment: EMC_STA_WWR1_Val used once
+EMC_STA_WWR2_OFS 00000254
+
+Symbol: EMC_STA_WWR2_OFS
+   Definitions
+      At line 427 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWR2_OFS unused
+EMC_STA_WWR2_Val 0000001F
+
+Symbol: EMC_STA_WWR2_Val
+   Definitions
+      At line 956 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWR2_Val unused
+EMC_STA_WWR3_OFS 00000274
+
+Symbol: EMC_STA_WWR3_OFS
+   Definitions
+      At line 434 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWR3_OFS unused
+EMC_STA_WWR3_Val 0000001F
+
+Symbol: EMC_STA_WWR3_Val
+   Definitions
+      At line 1023 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EMC_STA_WWR3_Val unused
+EXTMEM_BASE 80000000
+
+Symbol: EXTMEM_BASE
+   Definitions
+      At line 62 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: EXTMEM_BASE unused
+FIQ_Stack_Size 00000C00
+
+
+
+
+ARM Macro Assembler    Page 20 Alphabetic symbol ordering
+Absolute symbols
+
+Symbol: FIQ_Stack_Size
+   Definitions
+      At line 89 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+      At line 1523 in file ..\OSL\LPC2400_RTX.s
+
+FLASH_BASE 00000000
+
+Symbol: FLASH_BASE
+   Definitions
+      At line 60 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: FLASH_BASE unused
+F_Bit 00000040
+
+Symbol: F_Bit
+   Definitions
+      At line 54 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1511 in file ..\OSL\LPC2400_RTX.s
+      At line 1516 in file ..\OSL\LPC2400_RTX.s
+      At line 1521 in file ..\OSL\LPC2400_RTX.s
+      At line 1526 in file ..\OSL\LPC2400_RTX.s
+      At line 1531 in file ..\OSL\LPC2400_RTX.s
+
+Heap_Size 00050000
+
+Symbol: Heap_Size
+   Definitions
+      At line 108 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 112 in file ..\OSL\LPC2400_RTX.s
+      At line 1570 in file ..\OSL\LPC2400_RTX.s
+
+IRQ_Stack_Size 00000C00
+
+Symbol: IRQ_Stack_Size
+   Definitions
+      At line 90 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+      At line 1528 in file ..\OSL\LPC2400_RTX.s
+
+ISR_Stack_Size 00002000
+
+Symbol: ISR_Stack_Size
+   Definitions
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 99 in file ..\OSL\LPC2400_RTX.s
+Comment: ISR_Stack_Size used once
+I_Bit 00000080
+
+Symbol: I_Bit
+   Definitions
+      At line 53 in file ..\OSL\LPC2400_RTX.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 21 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 1511 in file ..\OSL\LPC2400_RTX.s
+      At line 1516 in file ..\OSL\LPC2400_RTX.s
+      At line 1521 in file ..\OSL\LPC2400_RTX.s
+      At line 1526 in file ..\OSL\LPC2400_RTX.s
+      At line 1531 in file ..\OSL\LPC2400_RTX.s
+
+MAMCR_OFS 00000000
+
+Symbol: MAMCR_OFS
+   Definitions
+      At line 344 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1169 in file ..\OSL\LPC2400_RTX.s
+Comment: MAMCR_OFS used once
+MAMCR_Val 00000002
+
+Symbol: MAMCR_Val
+   Definitions
+      At line 359 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1168 in file ..\OSL\LPC2400_RTX.s
+Comment: MAMCR_Val used once
+MAMTIM_OFS 00000004
+
+Symbol: MAMTIM_OFS
+   Definitions
+      At line 345 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1167 in file ..\OSL\LPC2400_RTX.s
+Comment: MAMTIM_OFS used once
+MAMTIM_Val 00000004
+
+Symbol: MAMTIM_Val
+   Definitions
+      At line 360 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1166 in file ..\OSL\LPC2400_RTX.s
+Comment: MAMTIM_Val used once
+MAM_BASE E01FC000
+
+Symbol: MAM_BASE
+   Definitions
+      At line 343 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1165 in file ..\OSL\LPC2400_RTX.s
+Comment: MAM_BASE used once
+MAM_SETUP 00000001
+
+Symbol: MAM_SETUP
+   Definitions
+      At line 358 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1164 in file ..\OSL\LPC2400_RTX.s
+Comment: MAM_SETUP used once
+MEMMAP E01FC040
+
+Symbol: MEMMAP
+   Definitions
+      At line 1492 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 22 Alphabetic symbol ordering
+Absolute symbols
+
+   Uses
+      None
+Comment: MEMMAP unused
+MODE_CMD 00000080
+
+Symbol: MODE_CMD
+   Definitions
+      At line 440 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1301 in file ..\OSL\LPC2400_RTX.s
+Comment: MODE_CMD used once
+Mode_ABT 00000017
+
+Symbol: Mode_ABT
+   Definitions
+      At line 49 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1516 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_ABT used once
+Mode_FIQ 00000011
+
+Symbol: Mode_FIQ
+   Definitions
+      At line 46 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1521 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_FIQ used once
+Mode_IRQ 00000012
+
+Symbol: Mode_IRQ
+   Definitions
+      At line 47 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1526 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_IRQ used once
+Mode_SVC 00000013
+
+Symbol: Mode_SVC
+   Definitions
+      At line 48 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1531 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_SVC used once
+Mode_SYS 0000001F
+
+Symbol: Mode_SYS
+   Definitions
+      At line 51 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: Mode_SYS unused
+Mode_UND 0000001B
+
+Symbol: Mode_UND
+   Definitions
+      At line 50 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1511 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_UND used once
+
+
+
+ARM Macro Assembler    Page 23 Alphabetic symbol ordering
+Absolute symbols
+
+Mode_USR 00000010
+
+Symbol: Mode_USR
+   Definitions
+      At line 45 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1536 in file ..\OSL\LPC2400_RTX.s
+Comment: Mode_USR used once
+NOP_CMD 00000180
+
+Symbol: NOP_CMD
+   Definitions
+      At line 442 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1281 in file ..\OSL\LPC2400_RTX.s
+Comment: NOP_CMD used once
+NORMAL_CMD 00000000
+
+Symbol: NORMAL_CMD
+   Definitions
+      At line 439 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1362 in file ..\OSL\LPC2400_RTX.s
+Comment: NORMAL_CMD used once
+OSCEN 00000020
+
+Symbol: OSCEN
+   Definitions
+      At line 136 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1104 in file ..\OSL\LPC2400_RTX.s
+Comment: OSCEN used once
+OSCRANGE 00000010
+
+Symbol: OSCRANGE
+   Definitions
+      At line 135 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: OSCRANGE unused
+OSCSTAT 00000040
+
+Symbol: OSCSTAT
+   Definitions
+      At line 137 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1106 in file ..\OSL\LPC2400_RTX.s
+Comment: OSCSTAT used once
+PALL_CMD 00000100
+
+Symbol: PALL_CMD
+   Definitions
+      At line 441 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1288 in file ..\OSL\LPC2400_RTX.s
+Comment: PALL_CMD used once
+PCB_BASE E002C000
+
+Symbol: PCB_BASE
+
+
+
+ARM Macro Assembler    Page 24 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 365 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1178 in file ..\OSL\LPC2400_RTX.s
+Comment: PCB_BASE used once
+PCLKSEL0_OFS 000001A8
+
+Symbol: PCLKSEL0_OFS
+   Definitions
+      At line 128 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1150 in file ..\OSL\LPC2400_RTX.s
+Comment: PCLKSEL0_OFS used once
+PCLKSEL0_Val 00000280
+
+Symbol: PCLKSEL0_Val
+   Definitions
+      At line 337 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1149 in file ..\OSL\LPC2400_RTX.s
+Comment: PCLKSEL0_Val used once
+PCLKSEL1_OFS 000001AC
+
+Symbol: PCLKSEL1_OFS
+   Definitions
+      At line 129 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1152 in file ..\OSL\LPC2400_RTX.s
+Comment: PCLKSEL1_OFS used once
+PCLKSEL1_Val 00020000
+
+Symbol: PCLKSEL1_Val
+   Definitions
+      At line 338 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1151 in file ..\OSL\LPC2400_RTX.s
+Comment: PCLKSEL1_Val used once
+PCONP_OFS 000000C4
+
+Symbol: PCONP_OFS
+   Definitions
+      At line 132 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1181 in file ..\OSL\LPC2400_RTX.s
+      At line 1183 in file ..\OSL\LPC2400_RTX.s
+
+PCON_OFS 000000C0
+
+Symbol: PCON_OFS
+   Definitions
+      At line 131 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: PCON_OFS unused
+PINSEL0_OFS 00000000
+
+Symbol: PINSEL0_OFS
+   Definitions
+      At line 366 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 25 Alphabetic symbol ordering
+Absolute symbols
+
+   Uses
+      At line 1192 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL0_OFS used once
+PINSEL0_Val 00000000
+
+Symbol: PINSEL0_Val
+   Definitions
+      At line 448 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1191 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL0_Val used once
+PINSEL10_OFS 00000028
+
+Symbol: PINSEL10_OFS
+   Definitions
+      At line 376 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1213 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL10_OFS used once
+PINSEL1_OFS 00000004
+
+Symbol: PINSEL1_OFS
+   Definitions
+      At line 367 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1194 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL1_OFS used once
+PINSEL1_Val 00000000
+
+Symbol: PINSEL1_Val
+   Definitions
+      At line 449 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1193 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL1_Val used once
+PINSEL2_OFS 00000008
+
+Symbol: PINSEL2_OFS
+   Definitions
+      At line 368 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1196 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL2_OFS used once
+PINSEL2_Val 00000000
+
+Symbol: PINSEL2_Val
+   Definitions
+      At line 450 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1195 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL2_Val used once
+PINSEL3_OFS 0000000C
+
+Symbol: PINSEL3_OFS
+   Definitions
+      At line 369 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1198 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL3_OFS used once
+
+
+
+ARM Macro Assembler    Page 26 Alphabetic symbol ordering
+Absolute symbols
+
+PINSEL3_Val 00000000
+
+Symbol: PINSEL3_Val
+   Definitions
+      At line 451 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1197 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL3_Val used once
+PINSEL4_OFS 00000010
+
+Symbol: PINSEL4_OFS
+   Definitions
+      At line 370 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1200 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL4_OFS used once
+PINSEL4_Val 00000000
+
+Symbol: PINSEL4_Val
+   Definitions
+      At line 452 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1199 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL4_Val used once
+PINSEL5_OFS 00000014
+
+Symbol: PINSEL5_OFS
+   Definitions
+      At line 371 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1203 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL5_OFS used once
+PINSEL6_OFS 00000018
+
+Symbol: PINSEL6_OFS
+   Definitions
+      At line 372 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1205 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL6_OFS used once
+PINSEL7_OFS 0000001C
+
+Symbol: PINSEL7_OFS
+   Definitions
+      At line 373 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1207 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL7_OFS used once
+PINSEL8_OFS 00000020
+
+Symbol: PINSEL8_OFS
+   Definitions
+      At line 374 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1209 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL8_OFS used once
+PINSEL9_OFS 00000024
+
+Symbol: PINSEL9_OFS
+
+
+
+ARM Macro Assembler    Page 27 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 375 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1211 in file ..\OSL\LPC2400_RTX.s
+Comment: PINSEL9_OFS used once
+PLLCFG_OFS 00000084
+
+Symbol: PLLCFG_OFS
+   Definitions
+      At line 121 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1113 in file ..\OSL\LPC2400_RTX.s
+Comment: PLLCFG_OFS used once
+PLLCFG_Val 0000000B
+
+Symbol: PLLCFG_Val
+   Definitions
+      At line 334 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1112 in file ..\OSL\LPC2400_RTX.s
+      At line 1136 in file ..\OSL\LPC2400_RTX.s
+
+PLLCON_OFS 00000080
+
+Symbol: PLLCON_OFS
+   Definitions
+      At line 120 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1117 in file ..\OSL\LPC2400_RTX.s
+      At line 1156 in file ..\OSL\LPC2400_RTX.s
+
+PLLCON_PLLC 00000002
+
+Symbol: PLLCON_PLLC
+   Definitions
+      At line 139 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1155 in file ..\OSL\LPC2400_RTX.s
+Comment: PLLCON_PLLC used once
+PLLCON_PLLE 00000001
+
+Symbol: PLLCON_PLLE
+   Definitions
+      At line 138 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1116 in file ..\OSL\LPC2400_RTX.s
+      At line 1155 in file ..\OSL\LPC2400_RTX.s
+
+PLLFEED_OFS 0000008C
+
+Symbol: PLLFEED_OFS
+   Definitions
+      At line 123 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1114 in file ..\OSL\LPC2400_RTX.s
+      At line 1115 in file ..\OSL\LPC2400_RTX.s
+      At line 1118 in file ..\OSL\LPC2400_RTX.s
+      At line 1119 in file ..\OSL\LPC2400_RTX.s
+      At line 1157 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 28 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 1158 in file ..\OSL\LPC2400_RTX.s
+
+PLLSTAT_M 00007FFF
+
+Symbol: PLLSTAT_M
+   Definitions
+      At line 140 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1134 in file ..\OSL\LPC2400_RTX.s
+Comment: PLLSTAT_M used once
+PLLSTAT_N 00FF0000
+
+Symbol: PLLSTAT_N
+   Definitions
+      At line 141 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1134 in file ..\OSL\LPC2400_RTX.s
+Comment: PLLSTAT_N used once
+PLLSTAT_OFS 00000088
+
+Symbol: PLLSTAT_OFS
+   Definitions
+      At line 122 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1123 in file ..\OSL\LPC2400_RTX.s
+      At line 1133 in file ..\OSL\LPC2400_RTX.s
+
+PLLSTAT_PLOCK 04000000
+
+Symbol: PLLSTAT_PLOCK
+   Definitions
+      At line 142 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1124 in file ..\OSL\LPC2400_RTX.s
+Comment: PLLSTAT_PLOCK used once
+RAM_BASE 40000000
+
+Symbol: RAM_BASE
+   Definitions
+      At line 61 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: RAM_BASE unused
+SCB_BASE E01FC000
+
+Symbol: SCB_BASE
+   Definitions
+      At line 119 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1096 in file ..\OSL\LPC2400_RTX.s
+      At line 1177 in file ..\OSL\LPC2400_RTX.s
+
+SCS_OFS 000001A0
+
+Symbol: SCS_OFS
+   Definitions
+      At line 127 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1102 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 29 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 1105 in file ..\OSL\LPC2400_RTX.s
+
+SCS_Val 00000020
+
+Symbol: SCS_Val
+   Definitions
+      At line 332 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1101 in file ..\OSL\LPC2400_RTX.s
+      At line 1104 in file ..\OSL\LPC2400_RTX.s
+
+STA_MEM0_BASE 80000000
+
+Symbol: STA_MEM0_BASE
+   Definitions
+      At line 65 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: STA_MEM0_BASE unused
+STA_MEM1_BASE 81000000
+
+Symbol: STA_MEM1_BASE
+   Definitions
+      At line 66 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: STA_MEM1_BASE unused
+STA_MEM2_BASE 82000000
+
+Symbol: STA_MEM2_BASE
+   Definitions
+      At line 67 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: STA_MEM2_BASE unused
+STA_MEM3_BASE 83000000
+
+Symbol: STA_MEM3_BASE
+   Definitions
+      At line 68 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: STA_MEM3_BASE unused
+SVC_Stack_Size 00000800
+
+Symbol: SVC_Stack_Size
+   Definitions
+      At line 87 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+      At line 1533 in file ..\OSL\LPC2400_RTX.s
+
+UND_Stack_Size 00000000
+
+Symbol: UND_Stack_Size
+   Definitions
+      At line 86 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 94 in file ..\OSL\LPC2400_RTX.s
+
+
+
+ARM Macro Assembler    Page 30 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 1513 in file ..\OSL\LPC2400_RTX.s
+
+USBCLKCFG_OFS 00000108
+
+Symbol: USBCLKCFG_OFS
+   Definitions
+      At line 125 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1146 in file ..\OSL\LPC2400_RTX.s
+Comment: USBCLKCFG_OFS used once
+USBCLKCFG_Val 00000005
+
+Symbol: USBCLKCFG_Val
+   Definitions
+      At line 336 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1145 in file ..\OSL\LPC2400_RTX.s
+Comment: USBCLKCFG_Val used once
+USR_Stack_Size 00008000
+
+Symbol: USR_Stack_Size
+   Definitions
+      At line 91 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 98 in file ..\OSL\LPC2400_RTX.s
+      At line 1544 in file ..\OSL\LPC2400_RTX.s
+      At line 1569 in file ..\OSL\LPC2400_RTX.s
+
+211 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+SWI_Handler 00000000
+
+Symbol: SWI_Handler
+   Definitions
+      At line 1086 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1072 in file ..\OSL\LPC2400_RTX.s
+Comment: SWI_Handler used once
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 1550 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      At line 1551 in file ..\OSL\LPC2400_RTX.s
+Comment: __main used once
+__use_two_region_memory 00000000
+
+Symbol: __use_two_region_memory
+   Definitions
+      At line 1564 in file ..\OSL\LPC2400_RTX.s
+   Uses
+      None
+Comment: __use_two_region_memory unused
+3 symbols
+597 symbols in table

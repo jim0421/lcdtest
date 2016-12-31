@@ -1,0 +1,5 @@
+--cpu ARM7TDMI "..\zobjlst\lpc2400_rtx.o" "..\zobjlst\syscall.o" "..\zobjlst\tick.o" "..\zobjlst\retarget.o" "..\zobjlst\command.o" "..\zobjlst\irq.o" "..\zobjlst\swi_table.o" "..\zobjlst\rtx2_config.o" "..\zobjlst\osenv.o" "..\zobjlst\debug_print.o" "..\zobjlst\device_manage_rtx.o" "..\zobjlst\watchdog.o" "..\zobjlst\timer1.o" "..\zobjlst\ioport.o" "..\zobjlst\lpc22xxuartbase.o" "..\zobjlst\lcd050i64bio.o" "..\zobjlst\sys_init.o" "..\zobjlst\tty_control.o" "..\zobjlst\vt100.o" "..\zobjlst\brake_main.o" "..\zobjlst\drv2.o" "..\zobjlst\gb_table.o" "..\zobjlst\lcd_ascii.o" "..\zobjlst\lcd050i64.o" "..\zobjlst\lcd_dis.o" "..\zobjlst\components.o" "..\zobjlst\lcdtestmain.o" "..\zobjlst\mycomponents.o" "..\zobjlst\utility.o" "..\zobjlst\words.o" 
+C:\Keil\ARM\RV31\LIB\RTX_ARM_L.LIB --strict --scatter "..\ZObjLst\LiftLcd_S4.sct" 
+--entry 0x5000 --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list "..\..\LSTS\LiftLcd_S4.map" -o ..\ZObjLst\LiftLcd_S4.axf

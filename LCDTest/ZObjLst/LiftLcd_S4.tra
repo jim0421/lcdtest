@@ -1,0 +1,49 @@
+*** Creating Trace Output File '..\ZObjLst\LiftLcd_S4.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"..\zobjlst\lpc2400_rtx.o"'
+### List of Objects: adding '"..\zobjlst\syscall.o"'
+### List of Objects: adding '"..\zobjlst\tick.o"'
+### List of Objects: adding '"..\zobjlst\retarget.o"'
+### List of Objects: adding '"..\zobjlst\command.o"'
+### List of Objects: adding '"..\zobjlst\irq.o"'
+### List of Objects: adding '"..\zobjlst\swi_table.o"'
+### List of Objects: adding '"..\zobjlst\rtx2_config.o"'
+### List of Objects: adding '"..\zobjlst\osenv.o"'
+### List of Objects: adding '"..\zobjlst\debug_print.o"'
+### List of Objects: adding '"..\zobjlst\device_manage_rtx.o"'
+### List of Objects: adding '"..\zobjlst\watchdog.o"'
+### List of Objects: adding '"..\zobjlst\timer1.o"'
+### List of Objects: adding '"..\zobjlst\ioport.o"'
+### List of Objects: adding '"..\zobjlst\lpc22xxuartbase.o"'
+### List of Objects: adding '"..\zobjlst\lcd050i64bio.o"'
+### List of Objects: adding '"..\zobjlst\sys_init.o"'
+### List of Objects: adding '"..\zobjlst\tty_control.o"'
+### List of Objects: adding '"..\zobjlst\vt100.o"'
+### List of Objects: adding '"..\zobjlst\brake_main.o"'
+### List of Objects: adding '"..\zobjlst\drv2.o"'
+### List of Objects: adding '"..\zobjlst\gb_table.o"'
+### List of Objects: adding '"..\zobjlst\lcd_ascii.o"'
+### List of Objects: adding '"..\zobjlst\lcd050i64.o"'
+### List of Objects: adding '"..\zobjlst\lcd_dis.o"'
+### List of Objects: adding '"..\zobjlst\components.o"'
+### List of Objects: adding '"..\zobjlst\lcdtestmain.o"'
+### List of Objects: adding '"..\zobjlst\mycomponents.o"'
+### List of Objects: adding '"..\zobjlst\utility.o"'
+### List of Objects: adding '"..\zobjlst\words.o"'
+### ADS-LD Command completed:
+--cpu ARM7TDMI "..\zobjlst\lpc2400_rtx.o" "..\zobjlst\syscall.o" "..\zobjlst\tick.o" "..\zobjlst\retarget.o" "..\zobjlst\command.o" "..\zobjlst\irq.o" "..\zobjlst\swi_table.o" "..\zobjlst\rtx2_config.o" "..\zobjlst\osenv.o" "..\zobjlst\debug_print.o" "..\zobjlst\device_manage_rtx.o" "..\zobjlst\watchdog.o" "..\zobjlst\timer1.o" "..\zobjlst\ioport.o" "..\zobjlst\lpc22xxuartbase.o" "..\zobjlst\lcd050i64bio.o" "..\zobjlst\sys_init.o" "..\zobjlst\tty_control.o" "..\zobjlst\vt100.o" "..\zobjlst\brake_main.o" "..\zobjlst\drv2.o" "..\zobjlst\gb_table.o" "..\zobjlst\lcd_ascii.o" "..\zobjlst\lcd050i64.o" "..\zobjlst\lcd_dis.o" "..\zobjlst\components.o" "..\zobjlst\lcdtestmain.o" "..\zobjlst\mycomponents.o" "..\zobjlst\utility.o" "..\zobjlst\words.o" 
+C:\Keil\ARM\RV31\LIB\RTX_ARM_L.LIB --strict --scatter "..\ZObjLst\LiftLcd_S4.sct" 
+--entry 0x5000 --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list "..\..\LSTS\LiftLcd_S4.map" -o ..\ZObjLst\LiftLcd_S4.axf### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '..\ZObjLst\LiftLcd_S4.axf'
+### ADS-LD Command File: '..\ZObjLst\LiftLcd_S4.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '..\ZObjLst\LiftLcd_S4.lnp', Handle=0x00000790
+### Writing '.lnp' file
+### ADS-LD Command file '..\ZObjLst\LiftLcd_S4.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

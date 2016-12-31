@@ -1,0 +1,9 @@
+..\ZObjLst\device_manage_rtx.o: ..\DRV\device_manage_RTX.c
+..\ZObjLst\device_manage_rtx.o: C:\Keil\ARM\Inc\Philips\lpc23xx.h
+..\ZObjLst\device_manage_rtx.o: ..\INC\bsp.h
+..\ZObjLst\device_manage_rtx.o: ..\INC\typedef.h
+..\ZObjLst\device_manage_rtx.o: ..\DRV\ioport.h
+..\ZObjLst\device_manage_rtx.o: ..\DRV\time1.h
+..\ZObjLst\device_manage_rtx.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+..\ZObjLst\device_manage_rtx.o: ..\DRV\LCD050I64BIO.h
+..\ZObjLst\device_manage_rtx.o: ..\INC\drv.h

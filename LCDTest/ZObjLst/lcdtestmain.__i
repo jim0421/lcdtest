@@ -1,0 +1,5 @@
+--cpp -c --cpu ARM7TDMI -D__RTX -g -O0 --apcs=interwork -I..\INC -I..\DRV -I..\LcdPrg 
+-I C:\Keil\ARM\RV31\INC 
+-I C:\Keil\ARM\CMSIS\Include 
+-I C:\Keil\ARM\Inc\Philips 
+-o "..\ZObjLst\lcdtestmain.o" --omf_browse "..\ZObjLst\lcdtestmain.crf" --depend "..\ZObjLst\lcdtestmain.d" "..\LcdPrg\LcdTestMain.cpp"

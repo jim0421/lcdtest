@@ -1,0 +1,9 @@
+..\ZObjLst\command.o: ..\OSL\command.c
+..\ZObjLst\command.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+..\ZObjLst\command.o: C:\Keil\ARM\ARMCC\bin\..\include\ctype.h
+..\ZObjLst\command.o: C:\Keil\ARM\Inc\Philips\LPC23xx.h
+..\ZObjLst\command.o: ..\INC\bsp.h
+..\ZObjLst\command.o: ..\INC\typedef.h
+..\ZObjLst\command.o: ..\INC\sys.h
+..\ZObjLst\command.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+..\ZObjLst\command.o: ..\INC\drv.h

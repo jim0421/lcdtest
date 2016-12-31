@@ -1,0 +1,1 @@
+..\ZObjLst\LPC2400_RTX.o: ..\OSL\LPC2400_RTX.s
